@@ -26,7 +26,7 @@ It use the folder except for `tcl/` and `project/`  as source files then generat
 
 ### Generate Project
 #### Method 1
-1. Delete `project/` if exist (It conflicts with new project)<img src="https://cdn.jsdelivr.net/gh/Mark4551124015/Images_Bed/NoteImages/image-20230424202455075.png" alt="image-20230424202455075" style="zoom:20%;" align = "right"/>
+1. Delete `project/` if exist (It conflicts with new project)<img src="https://cdn.jsdelivr.net/gh/Mark4551124015/Images_Bed/NoteImages/image-20230424202455075.png" alt="image-20230424202455075" style="zoom:20%;"/>
 2. Open Vivado 2017.4
 3. Click "TCL Console" at Bottom Left
 4. Type in command `cd C:/xx/xx/` , `C:/xx/xx/` is the root directory of this document (Project Root) Then Enter 
