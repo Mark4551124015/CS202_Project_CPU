@@ -2,7 +2,7 @@
 
 ## Group Member
 
-LIU Xiaoqun (studentID), GOU Yebei (studentID), FENG Zexin(12110104)
+LIU Xiaoqun (12110943), GOU Yebei (studentID), FENG Zexin(12110104)
 
 ## File Structure
 
