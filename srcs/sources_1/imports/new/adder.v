@@ -9,7 +9,5 @@ module adder (in1,
     assign overflow = 
     (in1[2] & in2[2] & ~sum[2]) | /* two +ve operands, get -ve operand*/
     (~in1[2] & ~in2[2] & sum[2]); /* two -ve operands, get +ve operand*/
-    reg [1:0] fuck;
-    
     
 endmodule
