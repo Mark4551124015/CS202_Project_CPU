@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-module controller(Opcode,Function_opcode,Jr,Jmp,Jal,
+module Controller(Opcode,Function_opcode,Jr,Jmp,Jal,
 Alu_resultHigh, 
 Branch,nBranch,
 RegDST, MemorIOtoReg, RegWrite,

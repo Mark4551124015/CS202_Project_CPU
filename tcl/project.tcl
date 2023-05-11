@@ -127,52 +127,42 @@ set obj [get_filesets sources_1]
 # Import local files from the original project
 # <=============HERE IS SOURCE===============> \\Marker//
 set files [list \
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/top.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/ALU.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/Controller.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/Decoder.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/IFetch.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/addrALU.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/MULTI.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/ip/RAM/RAM.xci"]"\
  "[file normalize "$origin_dir/srcs/sources_1/ip/RAM/RAM.coe"]"\
  "[file normalize "$origin_dir/srcs/sources_1/ip/prgRAM/prgRAM.xci"]"\
  "[file normalize "$origin_dir/srcs/sources_1/ip/prgRAM/prg.coe"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/ip/cpuclk/cpuclk.xci"]"\
 ]
 # set local_files [import_files -fileset sources_1 $files]
 add_files -norecurse -fileset $obj $files
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]
-set_property -name "top" -value "IFetch" -objects $obj
+set_property -name "top" -value "top" -objects $obj
 
 
+# <=============HERE IS CONSRAIN===============> \\Marker//
 # Create 'constrs_1' fileset (if not found)
 if {[string equal [get_filesets -quiet constrs_1] ""]} {
   create_fileset -constrset constrs_1
 }
 set obj [get_filesets constrs_1]
-# <=============HERE IS CONSRAIN===============> \\Marker//
-
-# Add cons.xdc
-set file "[file normalize "$origin_dir/srcs/constrs_1/constriant/cons.xdc"]"
+set files [list \
+ "[file normalize "$origin_dir/srcs/constrs_1/constriant/cons.xdc"]"\
+ "[file normalize "$origin_dir/srcs/constrs_1/constriant/cons2.xdc"]"\
+]
 # set file_imported [import_files -fileset constrs_1 $file]
-add_files -norecurse -fileset $obj $file
-
-set file "new/cons.xdc"
-set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
+add_files -norecurse -fileset $obj $files
+set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*"]]
 set_property -name "file_type" -value "XDC" -objects $file_obj
 
-# Add cons2.xdc
-set file "[file normalize "$origin_dir/srcs/constrs_1/constriant/cons2.xdc"]"
-# set file_imported [import_files -fileset constrs_1 $file
-add_files -norecurse -fileset $obj $file
-
-set file "new/cons2.xdc"
-set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
-set_property -name "file_type" -value "XDC" -objects $file_obj
-
-
-# Set 'constrs_1' fileset properties
-set obj [get_filesets constrs_1]
 
 # Create 'sim_1' fileset (if not found)
 if {[string equal [get_filesets -quiet sim_1] ""]} {
@@ -185,7 +175,8 @@ set obj [get_filesets sim_1]
 
 # <=============HERE IS SIMULATION===============> \\Marker//
 set files [list \
- "[file normalize "$origin_dir/srcs/sim_1/testbench/sim_add.v"]"\
+ "[file normalize "$origin_dir/srcs/sim_1/testbench/top_tb.v"]"\
+ "[file normalize "$origin_dir/srcs/sim_1/testbench/ALU_tb.v"]"\
 ]
 # set imported_files [import_files -fileset sim_1 $files]
 add_files -norecurse -fileset $obj $files
@@ -193,7 +184,7 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'sim_1' fileset properties
 set obj [get_filesets sim_1]
-set_property -name "top" -value "sim_add" -objects $obj
+set_property -name "top" -value "top_tb" -objects $obj
 
 # Create 'synth_1' run (if not found)
 if {[string equal [get_runs -quiet synth_1] ""]} {

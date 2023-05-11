@@ -20,16 +20,17 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module ALU(Read_A,Read_B,Read_I,funct,opcode,shamt,ALUOp,ALUSrc,I_format,Sftmd,Zero,ALU_Result);
-    //Decoder 数据
-    input [31:0] Read_A;    // 输入A  - Reg
-    input [31:0] Read_B;    // 输入B1 - Reg
-    input [31:0] Read_I;    // 输入B2 - Immed
+module ALU(Read_A,Read_B,Read_I,funct,opcode,Shamt,ALUOp,ALUSrc,I_format,Sftmd,Zero,ALU_Result,debug);
+    //Decoder 数据 有符号
+    input signed [31:0] Read_A;    // 输入A  - Reg
+    input signed [31:0] Read_B;    // 输入B1 - Reg
+    input signed [31:0] Read_I;    // 输入B2 - Immed
+
 
     //IF 数据
     input [5:0] funct;      // function码
     input [5:0] opcode;     // 操作码
-    input [4:0] shamt;      // 位移
+    input [4:0] Shamt;      // 位移
     
     //ALU 控制信号
     input[1:0] ALUOp;
@@ -41,8 +42,10 @@ module ALU(Read_A,Read_B,Read_I,funct,opcode,shamt,ALUOp,ALUSrc,I_format,Sftmd,Z
     input Sftmd;
 
     output wire Zero;                       // 1 - 输出是0
-    output reg  [31:0]  ALU_Result;         // ALU计算结果
-    reg         [31:0]  ALU_output;
+    output reg [31:0]  ALU_Result = 32'b0;         // ALU计算结果
+    output [31:0] debug;
+
+    reg [31:0]  ALU_output;
     
     assign Zero = (ALU_output[31:0] == 32'h00000000) ? 1'b1 : 1'b0;
 
@@ -53,17 +56,18 @@ module ALU(Read_A,Read_B,Read_I,funct,opcode,shamt,ALUOp,ALUSrc,I_format,Sftmd,Z
 
     //决定 Ext_code
     wire    [5:0] Ext_code;         // 用于生成 ALU_ctrl
-    assign Ext_code = (I_format == 0) ? funct : { 3'b000 , opcode[2:0]};
+    assign Ext_code = (I_format == 1'b0) ? funct : { 3'b000 , opcode[2:0]};
 
     // 生成CPU控制码
     wire [2:0] ALU_ctrl;
     assign ALU_ctrl[0] = (Ext_code[0] | Ext_code[3]) & ALUOp[1];
-    assign ALU_ctrl[1] = ((!Ext_code[2]) | (!ALUOp[1]));
+    assign ALU_ctrl[1] = (~Ext_code[2]) | (~ALUOp[1]);
+    // assign ALU_ctrl[1] = debug[31];
     assign ALU_ctrl[2] = (Ext_code[1] & ALUOp[1]) | ALUOp[0];
     
 
     // ALU 计算，输出到 ALU_output
-    always @(ALU_ctrl or A_in or B_in) begin
+    always @(ALU_ctrl , A_in , B_in) begin
         case(ALU_ctrl)
             3'b000: ALU_output = A_in & B_in;
             3'b001: ALU_output = A_in | B_in;
@@ -84,11 +88,11 @@ module ALU(Read_A,Read_B,Read_I,funct,opcode,shamt,ALUOp,ALUSrc,I_format,Sftmd,Z
     always @(*) begin
         if (Sftmd) begin
         case (shift_ctrl) 
-                3'b000: Shift_Result = B_in << shamt;   // sll
-                3'b010: Shift_Result = B_in >> shamt;   // srl
+                3'b000: Shift_Result = B_in << Shamt;   // sll
+                3'b010: Shift_Result = B_in >> Shamt;   // srl
                 3'b100: Shift_Result = B_in << A_in;    // sllv
                 3'b110: Shift_Result = B_in >> A_in;    // srlv
-                3'b011: Shift_Result = B_in >>> shamt;  // sra
+                3'b011: Shift_Result = B_in >>> Shamt;  // sra
                 3'b111: Shift_Result = B_in >>> A_in;   // srav
                 default:Shift_Result = B_in;
         endcase
@@ -98,21 +102,24 @@ module ALU(Read_A,Read_B,Read_I,funct,opcode,shamt,ALUOp,ALUSrc,I_format,Sftmd,Z
         end
     end
     
-    
     wire slt;
     assign slt = (((ALU_ctrl == 3'b111) && (Ext_code[3] == 1))||((ALU_ctrl[2:1] == 2'b11) && (I_format == 1)));
     always @(*) begin
         if (slt) begin
-            ALU_output = (A_in-B_in<0)? 1:0;
+            ALU_Result <= (A_in-B_in<0)? 1:0;
         end
         else if (ALU_ctrl == 3'b101 && I_format == 1) begin
-            ALU_output = {B_in[15:0],{16'b0}};    
+            ALU_Result <= {B_in[15:0],{16'b0}};    
         end
         else if (Sftmd == 1'b1) begin
-            ALU_output = Shift_Result;
+            ALU_Result <= Shift_Result;
         end 
         else begin
-            ALU_output = ALU_Result;
+            ALU_Result <= ALU_output;
         end
     end
+
+    assign debug[2:0] = ALU_ctrl;
+    assign debug[30] = ALU_ctrl;
+    assign debug[31] = (~Ext_code[2]) | (~ALUOp[1]);
 endmodule

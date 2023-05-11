@@ -60,7 +60,7 @@ module IFetch(clock,reset,Addr_result,Zero,Read_data_1,Branch,nBranch,Jmp,Jal,Jr
             Next_PC <= PC + 4;
         end
     end
-
+    
     always @(negedge clock) begin
         if(reset == 1'b1) begin
             PC <= 32'h0000_0000;
@@ -80,10 +80,10 @@ module IFetch(clock,reset,Addr_result,Zero,Read_data_1,Branch,nBranch,Jmp,Jal,Jr
     assign pco = PC;
     assign branch_base_addr = PC + 4;
 
-    prgrom myRAM(
-    .clka(clock), // input wire clka
-    .addra(PC[15:2]), // input wire [13 : 0] addra
-    .douta(Instruction) // output wire [31 : 0] douta
+    prgRAM myRAM(
+      .clka(clock), // input wire clka
+      .addra(PC[15:2]), // input wire [13 : 0] addra
+      .douta(Instruction) // output wire [31 : 0] douta
     );
 
     
