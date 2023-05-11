@@ -37,6 +37,12 @@ It use the folder except for `tcl/` and `project/`  as source files then generat
 
 ### Modify Project
 
+#### New version:
+
+* just edit in `src/`, but you still need to add them to `project.tcl`
+
+#### old version: (Wont work now)
+
 * You can simply use Vivado as IDE, but export the project by execute `copy.bat`, then commit and push
 * Or open `srcs/` by VSCode and edit directly
 * `project/` is ignored, won't push to github.
@@ -50,4 +56,6 @@ It use the folder except for `tcl/` and `project/`  as source files then generat
 
 ## 总结
 
-一般在src文件夹里写，添加的文件要同步添加到`tcl/project.tcl`文件中。要测试的时候再使用`source srcs/project.tcl`创建project
+直接在`src/`里写就行了，新建IP核挪到src中，修改`project.tcl`文件即可
+
+现在的project会引用外部的文件
