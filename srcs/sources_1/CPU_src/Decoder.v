@@ -19,7 +19,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 // 
-// module Decoder(Instruction,mem_data,ALU_result,Jal,RegWrite,MemtoReg,RegDst,clock,reset,opcplus4,read_data_1,read_data_2,Sign_extend);
+
 `include "includes/defines.v"
 
 module decode32 (
@@ -50,7 +50,7 @@ module decode32 (
   input clock, reset;  // 时钟和复位
   input [31:0] opcplus4;  // 来自取指单元，JAL中用
 
-  // 指令集的划分
+
   wire [ 5:0] opcode;
   wire [ 4:0] rs;
   wire [ 4:0] rt;
@@ -68,69 +68,39 @@ module decode32 (
   assign immediate = Instruction[15:0];
   assign address   = Instruction[25:0];
 
-  // 32 个寄存器
   reg [31:0] register[0:31];
-  // 写寄存器
-  reg [4:0] write_register_address;  // 写寄存器地址
-  reg [31:0] write_data;  // 写寄存器的数据
 
-  // 符号位拓展
-  assign Sign_extend = (opcode == `ANDI_OP || opcode == `ORI_OP || opcode == `XORI_OP || opcode == `SLTIU_OP) ? {16'b0, immediate} : {{16{immediate[15]}}, immediate};
+  reg [4:0] write_register_address;
+  reg [31:0] write_data;
 
-  // 从寄存器读取
+  assign Sign_extend = (opcode == `ANDI_OP || opcode == `ORI_OP || 
+                        opcode == `XORI_OP || opcode == `SLTIU_OP) ? {16'b0, immediate} : {{16{immediate[15]}}, immediate};
+
   assign read_data_1 = register[rs];
   assign read_data_2 = register[rt];
 
-
-  // 确定写寄存器的地址的来源
   always @(negedge clock) begin
     if (RegWrite) begin
-      if (Jal) begin
-        write_register_address <= 5'b11111;  // 32
-      end  // 写寄存器目标来自 rd 字段
-      else if (RegDst) begin
-        write_register_address <= rd;
-      end  // 写寄存器的值来自 rt 字段
-
-      else if (!RegDst) begin
-        write_register_address <= rt;
-      end
+      if (Jal) write_register_address <= 5'b11111;
+      else write_register_address <= RegDst ? rd : rt;
     end
   end
 
-
-  // 确定写寄存器数据的来源
   always @(negedge clock) begin
-    if (RegWrite == 1'b1) begin
-      if (Jal) begin
-        write_data <= opcplus4;
-      end else if (!MemtoReg) begin
-        write_data <= ALU_result;
-      end  // 1-写寄存器的数据来自数据存储器
-
-      else if (MemtoReg) begin
-        write_data <= mem_data;
-      end
+    if (RegWrite) begin
+      if (Jal) write_data <= opcplus4;
+      else if (!MemtoReg) write_data <= ALU_result;
+      else if (MemtoReg) write_data <= mem_data;
     end
   end
 
-
-
-  // 写入寄存器
-  integer i;  // 指针
+  integer i;
   always @(posedge clock) begin
-    // 初始化寄存器数组
-    if (reset == 1'b1) begin
+    if (reset) begin
       for (i = 0; i < 32; i = i + 1) register[i] <= 0;
-    end else begin
-      // // 1-寄存器堆写使能有效
-      if (RegWrite == 1'b1) begin
-        if (write_register_address != 0) begin
-          register[write_register_address] <= write_data;
-        end
-      end
+    end else if (RegWrite && write_register_address != 0) begin
+      register[write_register_address] <= write_data;
     end
-
   end
 
 endmodule

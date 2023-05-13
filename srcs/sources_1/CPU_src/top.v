@@ -47,22 +47,8 @@ module top(clock, rst, switch, led, debug);
 
 
 
-    IFetch fetch(
-        .clock(clk),
-        .reset(rst),
-        .Addr_result(Addr_result),
-        .Zero(Zero),
-        .Read_data_1(Read_A),
-        .Branch(Branch),
-        .nBranch(nBranch),
-        .Jmp(Jmp),
-        .Jal(Jal),
-        .Jr(Jr),
-        .Instruction(Instruction),
-        .branch_base_addr(branch_base_addr),
-        .link_addr(link_addr),
-        .pco(pco)
-    );
+    Ifetc32 if3(.Instruction(Instruction),.branch_base_addr(branch_base_addr),.Addr_result(Addr_result),.Read_data_1(Read_data_1),.Branch(Branch),.nBranch(nBranch),.Jmp(Jmp),.Jal(Jal),.Jr(Jr),.Zero(Zero),.clock(clk),.reset(rst),.link_addr(link_addr));
+    
 
     // Controller
     wire RegDST, MemorIOtoReg, RegWrite, MemWrite;
@@ -71,26 +57,9 @@ module top(clock, rst, switch, led, debug);
     wire [21:0]Alu_resultHigh;
     wire MemRead, IORead, IOWrite;
 
-    Controller control(
-        .Opcode(Instruction[31:26]),
-        .Function_opcode(Instruction[5:0]),
-        .Jr(Jr),
-        .Jmp(Jmp),
-        .Jal(Jal),
-        .Branch(Branch),
-        .nBranch(nBranch),
-        .RegDST(RegDST),
-        .RegWrite(RegWrite),
-        .MemWrite(MemWrite),
-        .ALUSrc(ALUSrc),
-        .I_format(I_format),
-        .Sftmd(Sftmd),
-        .ALUOp(ALUOp),
-        .MemorIOtoReg(MemorIOtoReg),
-        .MemRead(MemRead),
-        .IORead(IORead),
-        .IOWrite(IOWrite)
-    );
+    control32 ctrl32(.Opcode (Opcode_tb),.Function_opcode (Function_opcode_tb),.Jr (Jr_tb),.RegDST (RegDST_tb),.ALUSrc (ALUSrc_tb),
+    .MemtoReg (MemtoReg_tb),.RegWrite (RegWrite_tb),.MemWrite (MemWrite_tb),.Branch (Branch_tb),.nBranch (nBranch_tb),.Jmp (Jmp_tb),.Jal (Jal_tb),
+    .I_format (I_format_tb),.Sftmd (Sftmd_tb),.ALUOp (ALUOp_tb));
 
     //IDecode
     wire [31:0] read_data;  // 从 DATA RAM or I/O port取出的数据
@@ -101,43 +70,26 @@ module top(clock, rst, switch, led, debug);
     
     wire [31:0] r_wdata;
 
-    Decoder decode(
-        .clock(clk),
-        .reset(rst),
-        .Instruction(Instruction),
-        .read_data(r_wdata),
-        .ALU_result(ALU_result),
-        .Jal(Jal),
-        .RegWrite(RegWrite),
-        .MemtoReg(MemorIOtoReg),
-        .RegDst(RegDST),
-        .opcplus4(link_addr),
-        .read_data_1(Read_A),
-        .read_data_2(Read_B),
-        .imme_extend(imme_extend)
-    );
+    decode32 u3 (
+      .read_data_1(read_data_1),
+      .read_data_2(read_data_2),
+      .Instruction(Instruction),
+      .mem_data(mem_data),
+      .ALU_result(ALU_result),
+      .Jal(Jal),
+      .RegWrite(RegWrite),
+      .MemtoReg(MemtoReg),
+      .RegDst(RegDst),
+      .Sign_extend(Sign_extend),
+      .clock(clock),
+      .reset(reset),
+      .opcplus4(opcplus4)
+  );
 
     // ALU
-    ALU execute(
-        .Read_A(Read_A),
-        .Read_B(Read_B),
-        .Read_I(imme_extend),
-        .opcode(Instruction[31:26]),
-        .funct(Instruction[5:0]),
-        .Shamt(Instruction[10:6]),
-        .ALUOp(ALUOp),
-        .ALUSrc(ALUSrc),
-        .I_format(I_format),
-        .Sftmd(Sftmd),
-        .Zero(Zero),
-        .ALU_Result(ALU_result)
-    );
-
-    addrALU addrALU(
-        .PC_plus_4(PC_plus_4),
-        .Imme_extend(Imme_extend),
-        .Addr_Result(Addr_Result)
-    );
+    executs32 Uexe(.Read_data_1(Read_data_1),.Read_data_2(Read_data_2),.Sign_extend(Imme_extend),.Function_opcode(Function_opcode),.Exe_opcode(opcode),.ALUOp(ALUOp),
+                     .Shamt(Shamt),.ALUSrc(ALUSrc),.I_format(I_format),.Zero(Zero),.Sftmd(Sftmd),.ALU_Result(ALU_Result),.Addr_Result(Addr_Result),.PC_plus_4(PC_plus_4),
+                     .Jr(Jr));
 
     wire [31:0] addr_out;
     wire [31:0] m_wdata;
