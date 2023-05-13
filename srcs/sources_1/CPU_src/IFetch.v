@@ -75,8 +75,8 @@ module Ifetc32 (
 
 
 
-  always @(posedge Jmp or posedge Jal) begin
-    link_addr = branch_base_addr;
+  always @(posedge Jmp, posedge Jal) begin
+    if (Jmp || Jal) link_addr = branch_base_addr;
   end
 
   prgrom myRAM (
