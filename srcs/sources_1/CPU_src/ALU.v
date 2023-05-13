@@ -40,24 +40,22 @@ module executs32(Read_data_1,Read_data_2,Sign_extend,Function_opcode,Exe_opcode,
     output [31:0]  Addr_Result;		// 计算的地址结果        
 
     input[31:0]  PC_plus_4;         // 来自取指单元的PC+4
-    reg [31:0]  ALU_output;
+    reg signed [31:0]  ALU_output;
     
 
 
     // 决定输入
     wire [31:0] A_in,B_in;  //两个计算输入
     assign A_in = Read_data_1;
-    assign B_in = (ALUSrc == 0) ? Read_data_2 : Sign_extend;
+    assign B_in = ALUSrc ? Sign_extend : Read_data_2;
 
 
-        // 跳转的分支地址
-    wire    [31:0] Branch_Addr;     // 该指令的计算地址，Addr_Result是 Branch_Addr[31:0]
-    assign Branch_Addr = {2'b00,PC_plus_4[31:2]} +  Sign_extend[31:0]; 
-    assign Addr_Result = Branch_Addr<<2; 
+
+    assign Addr_Result = PC_plus_4 + (Sign_extend << 2);
 
 
     //决定 Ext_code
-    wire    [5:0] Ext_code;         // 用于生成 ALU_ctrl
+    wire    [4:0] Ext_code;         // 用于生成 ALU_ctrl
     assign Ext_code = (I_format == 1'b0) ? Function_opcode : { 3'b000 , Exe_opcode[2:0]};
 
     // 生成CPU控制码
@@ -68,7 +66,7 @@ module executs32(Read_data_1,Read_data_2,Sign_extend,Function_opcode,Exe_opcode,
     
 
     // ALU 计算，输出到 ALU_output
-    always @(ALU_ctrl or A_in or B_in) begin
+    always @(ALU_ctrl , A_in , B_in) begin
         case(ALU_ctrl)
             3'b000: ALU_output = A_in & B_in;
             3'b001: ALU_output = A_in | B_in;
@@ -104,10 +102,10 @@ module executs32(Read_data_1,Read_data_2,Sign_extend,Function_opcode,Exe_opcode,
     end
 
     wire slt;
-    assign slt = ((ALU_ctrl == 3'b111) && (Ext_code[3] == 1)) || (ALU_ctrl[2:1] == 2'b11 &&I_format == 1);
+    assign slt = ((ALU_ctrl == 3'b111) && (Ext_code[3] == 1)) || (ALU_ctrl[2:1] == 2'b11 && I_format );
     always @(*) begin
         if (slt) begin
-            ALU_Result = ($signed(A_in) < $signed(B_in));
+            ALU_Result = {31'b0, (ALU_output[31] == 1)};
         end
         else if (ALU_ctrl == 3'b101 && I_format == 1) begin
             ALU_Result = {B_in[15:0],{16'b0}};    

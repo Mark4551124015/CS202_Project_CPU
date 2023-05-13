@@ -40,11 +40,11 @@ module ALU_tb();
     initial begin
         
         begin 
-            opcode = 6'b0001010; // SLTI 17
-            Read_data_1 = 32'h00000001;        // r-form rs
-            Read_data_2 = 32'h00000011;        // r-form rt
-            Imme_extend = 32'h00000011;  
-            Function_opcode = 6'b001010;      // SLTI 2a
+            opcode = 6'b001010;    // SLTI 18
+            Read_data_1 = 32'h00000011;        // r-form rs
+            Read_data_2 = 32'h00000001;        // r-form rt
+            Imme_extend = 32'h00000001;  
+            Function_opcode = 6'b000000;      // SLTI 2a
             ALUOp = 2'b10;
             Shamt = 5'b00000;
             Sftmd = 1'b0;
