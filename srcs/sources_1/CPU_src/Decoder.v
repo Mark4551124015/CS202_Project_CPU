@@ -18,11 +18,12 @@
 // Additional Comments:
 //
 //////////////////////////////////////////////////////////////////////////////////
+// 
+// module Decoder(Instruction,mem_data,ALU_result,Jal,RegWrite,MemtoReg,RegDst,clock,reset,opcplus4,read_data_1,read_data_2,Sign_extend);
+module decode32(Instruction,mem_data,ALU_result,Jal,RegWrite,MemtoReg,RegDst,clock,reset,opcplus4,read_data_1,read_data_2,Sign_extend);
 
-module Decoder(Instruction,read_data,ALU_result,Jal,RegWrite,MemtoReg,RegDst,clock,reset,opcplus4,read_data_1,read_data_2,imme_extend);
-    
     input [31:0]  Instruction;     // 指令
-    input [31:0]  read_data;       // �? DATA RAM or I/O port取出的数�?
+    input [31:0]  mem_data;       // �? DATA RAM or I/O port取出的数�?
     input [31:0]  ALU_result;      // ALU 计算结果
     input         Jal;             // Jal 指令标识 0-jr 指令    1-Jal指令
     input         RegWrite;        // 1-寄存器堆写使能有效
@@ -33,7 +34,7 @@ module Decoder(Instruction,read_data,ALU_result,Jal,RegWrite,MemtoReg,RegDst,clo
     
     output [31:0] read_data_1;
     output [31:0] read_data_2;
-    output reg [31:0] imme_extend;
+    output reg [31:0] Sign_extend;
 
     // 指令集的划分
     wire [5:0]  opcode;
@@ -56,14 +57,9 @@ module Decoder(Instruction,read_data,ALU_result,Jal,RegWrite,MemtoReg,RegDst,clo
     // 32 个寄存器
     reg[31:0]   register[0:31];
     
-
-    
     // 写寄存器
     reg[4:0]    write_register_address; // 写寄存器地址
     reg[31:0]   write_data;            // 写寄存器的数据
-
-
-
 
     // 符号位拓展
     wire sign_bit;
@@ -82,10 +78,10 @@ module Decoder(Instruction,read_data,ALU_result,Jal,RegWrite,MemtoReg,RegDst,clo
         // 无符号 andi、ori
         // andi、ori 无符号数拓展
         if(opcode == 6'b001101 || opcode == 6'b001101) begin
-          imme_extend <= {16'b0000_0000_0000_0000,immediate};
+          Sign_extend <= {16'b0000_0000_0000_0000,immediate};
         end
         else begin
-          imme_extend <= {sign_extended,immediate};
+          Sign_extend <= {sign_extended,immediate};
         end
     end
 
@@ -123,7 +119,7 @@ module Decoder(Instruction,read_data,ALU_result,Jal,RegWrite,MemtoReg,RegDst,clo
           end
             // 1-写寄存器的数据来自数据存储器
           else if(MemtoReg == 1'b1) begin
-            write_data <= read_data;
+            write_data <= mem_data;
           end
         end
     end
@@ -140,7 +136,9 @@ module Decoder(Instruction,read_data,ALU_result,Jal,RegWrite,MemtoReg,RegDst,clo
         else begin
             // // 1-寄存器堆写使能有效
             if(RegWrite == 1'b1) begin
-              register[write_register_address] <= write_data;
+              if (write_register_address!=0) begin
+                register[write_register_address] <= write_data;
+              end
             end
         end
     end
