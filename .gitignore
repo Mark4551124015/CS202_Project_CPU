@@ -2,3 +2,4 @@ project/
 CPU submodel/
 *.jou
 *.log
+tmp/

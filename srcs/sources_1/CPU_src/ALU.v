@@ -19,7 +19,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-// `include "defines.v"
+`include "includes/defines.v"
 
 // module ALU(Read_data_1,Read_data_2,Sign_extend,Function_opcode,Exe_opcode,Shamt,ALUOp,ALUSrc,Jr,I_format,Sftmd,Zero,ALU_Result,Addr_Result,PC_plus_4,debug);
 module executs32(Read_data_1,Read_data_2,Sign_extend,Function_opcode,Exe_opcode,Shamt,ALUOp,ALUSrc,I_format,Zero,Jr,Sftmd,ALU_Result,Addr_Result,PC_plus_4);

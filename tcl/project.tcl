@@ -132,12 +132,11 @@ set files [list \
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/Controller.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/Decoder.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/IFetch.v"]"\
- "[file normalize "$origin_dir/srcs/sources_1/CPU_src/addrALU.v"]"\
- "[file normalize "$origin_dir/srcs/sources_1/CPU_src/MULTI.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/includes/defines.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/ip/RAM/RAM.xci"]"\
  "[file normalize "$origin_dir/srcs/sources_1/ip/RAM/RAM.coe"]"\
- "[file normalize "$origin_dir/srcs/sources_1/ip/prgRAM/prgRAM.xci"]"\
- "[file normalize "$origin_dir/srcs/sources_1/ip/prgRAM/prg.coe"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/ip/prgrom/prgrom.xci"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/ip/prgrom/prgrom.coe"]"\
  "[file normalize "$origin_dir/srcs/sources_1/ip/cpuclk/cpuclk.xci"]"\
 ]
 # set local_files [import_files -fileset sources_1 $files]
@@ -177,6 +176,11 @@ set obj [get_filesets sim_1]
 set files [list \
  "[file normalize "$origin_dir/srcs/sim_1/testbench/top_tb.v"]"\
  "[file normalize "$origin_dir/srcs/sim_1/testbench/ALU_tb.v"]"\
+ "[file normalize "$origin_dir/srcs/sim_1/testbench/control_tb.v"]"\
+ "[file normalize "$origin_dir/srcs/sim_1/testbench/dec_tb.v"]"\
+ "[file normalize "$origin_dir/srcs/sim_1/testbench/ifetch_tb.v"]"\
+ "[file normalize "$origin_dir/srcs/sim_1/testbench/exe_tb.v"]"\
+ "[file normalize "$origin_dir/srcs/sim_1/testbench/dmem_tb.v"]"\
 ]
 # set imported_files [import_files -fileset sim_1 $files]
 add_files -norecurse -fileset $obj $files
