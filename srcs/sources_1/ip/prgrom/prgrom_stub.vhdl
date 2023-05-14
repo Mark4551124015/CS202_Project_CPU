@@ -1,13 +1,12 @@
 -- Copyright 1986-2017 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2017.4 (win64) Build 2086221 Fri Dec 15 20:55:39 MST 2017
--- Date        : Sun May 14 01:18:45 2023
--- Host        : Mark455-Desktop running 64-bit major release  (build 9200)
--- Command     : write_vhdl -force -mode synth_stub
---               d:/WORKSPACE/CS202_Project_CPU/project/project.srcs/sources_1/ip/prgrom/prgrom_stub.vhdl
+-- Date        : Sun May 14 11:23:02 2023
+-- Host        : at running 64-bit major release  (build 9200)
+-- Command     : write_vhdl -force -mode synth_stub D:/Vivado/CS202_Project_CPU/srcs/sources_1/ip/prgrom/prgrom_stub.vhdl
 -- Design      : prgrom
 -- Purpose     : Stub declaration of top-level module interface
--- Device      : xc7a100ticsg324-1L
+-- Device      : xc7a100tfgg484-1
 -- --------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;

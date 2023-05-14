@@ -1,14 +1,14 @@
 -- Copyright 1986-2017 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2017.4 (win64) Build 2086221 Fri Dec 15 20:55:39 MST 2017
--- Date        : Sun May 14 01:18:45 2023
--- Host        : Mark455-Desktop running 64-bit major release  (build 9200)
+-- Date        : Sun May 14 11:23:02 2023
+-- Host        : at running 64-bit major release  (build 9200)
 -- Command     : write_vhdl -force -mode funcsim
---               d:/WORKSPACE/CS202_Project_CPU/project/project.srcs/sources_1/ip/prgrom/prgrom_sim_netlist.vhdl
+--               D:/Vivado/CS202_Project_CPU/srcs/sources_1/ip/prgrom/prgrom_sim_netlist.vhdl
 -- Design      : prgrom
 -- Purpose     : This VHDL netlist is a functional simulation representation of the design and should not be modified or
 --               synthesized. This netlist cannot be used for SDF annotated simulation.
--- Device      : xc7a100ticsg324-1L
+-- Device      : xc7a100tfgg484-1
 -- --------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -5285,7 +5285,7 @@ entity prgrom_blk_mem_gen_v8_4_1 is
   attribute C_EN_SLEEP_PIN : integer;
   attribute C_EN_SLEEP_PIN of prgrom_blk_mem_gen_v8_4_1 : entity is 0;
   attribute C_EST_POWER_SUMMARY : string;
-  attribute C_EST_POWER_SUMMARY of prgrom_blk_mem_gen_v8_4_1 : entity is "Estimated Power for IP     :     13.087962 mW";
+  attribute C_EST_POWER_SUMMARY of prgrom_blk_mem_gen_v8_4_1 : entity is "Estimated Power for IP     :     13.776802 mW";
   attribute C_FAMILY : string;
   attribute C_FAMILY of prgrom_blk_mem_gen_v8_4_1 : entity is "artix7";
   attribute C_HAS_AXI_ID : integer;
@@ -5612,7 +5612,7 @@ architecture STRUCTURE of prgrom is
   attribute C_EN_SLEEP_PIN : integer;
   attribute C_EN_SLEEP_PIN of U0 : label is 0;
   attribute C_EST_POWER_SUMMARY : string;
-  attribute C_EST_POWER_SUMMARY of U0 : label is "Estimated Power for IP     :     13.087962 mW";
+  attribute C_EST_POWER_SUMMARY of U0 : label is "Estimated Power for IP     :     13.776802 mW";
   attribute C_FAMILY : string;
   attribute C_FAMILY of U0 : label is "artix7";
   attribute C_HAS_AXI_ID : integer;
