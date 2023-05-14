@@ -200,7 +200,7 @@ module top (
 
 
   dmemory32 uram (
-      .clock(clock),
+      .clock(clk),
       .memWrite(memWrite),
       .address(addr),
       .writeData(writeData),
