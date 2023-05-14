@@ -94,8 +94,8 @@ if { $::argc > 0 } {
   }
 }
 
-# Set the directory path for the original project from where this script was exported
-set orig_proj_dir "[file normalize "$origin_dir/../../cs202_lab"]"
+# # Set the directory path for the original project from where this script was exported
+# set orig_proj_dir "[file normalize "$origin_dir/../../cs202_lab"]"
 
 # Create project
 create_project ${project_name} ./${project_name} -part xc7a100tfgg484-1
@@ -103,8 +103,7 @@ create_project ${project_name} ./${project_name} -part xc7a100tfgg484-1
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
 
-# Reconstruct message rules
-# None
+
 
 # Set project properties
 set obj [current_project]
@@ -122,6 +121,12 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
   create_fileset -srcset sources_1
 }
 
+
+# Set IP repository paths
+set obj [get_filesets sources_1]
+set_property "ip_repo_paths" "[file normalize "$origin_dir/ip_core"]" $obj
+update_ip_catalog -rebuild
+
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 # Import local files from the original project
@@ -135,9 +140,9 @@ set files [list \
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/Dmem32.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/includes/defines.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/ip/RAM/RAM.xci"]"\
- "[file normalize "$origin_dir/srcs/sources_1/ip/RAM/RAM.coe"]"\
+ "[file normalize "$origin_dir/coe/RAM.coe"]"\
  "[file normalize "$origin_dir/srcs/sources_1/ip/prgrom/prgrom.xci"]"\
- "[file normalize "$origin_dir/srcs/sources_1/ip/prgrom/prgrom.coe"]"\
+ "[file normalize "$origin_dir/coe/prgrom.coe"]"\
  "[file normalize "$origin_dir/srcs/sources_1/ip/cpuclk/cpuclk.xci"]"\
 ]
 # set local_files [import_files -fileset sources_1 $files]

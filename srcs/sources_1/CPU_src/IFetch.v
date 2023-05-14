@@ -35,16 +35,17 @@ module Ifetc32 (
     clock,
     reset,
     link_addr,
-    rom_clk_i, // ROM clock
-rom_adr_i, // From IFetch
-Instruction_o, // To IFetch
-// UART Programmer Pinouts
-upg_rst_i, // UPG reset (Active High)
-upg_clk_i, // UPG clock (10MHz)
- upg_wen_i, // UPG write enable
- upg_adr_i, // UPG write address
-upg_dat_i, // UPG write data
- upg_done_i // 1 if program finished
+    // rom_clk_i,  // ROM clock
+    // rom_adr_i,  // From IFetch
+    // Instruction_o,  // To IFetch
+
+    // UART Programmer Pinouts
+    upg_rst_i,  // UPG reset (Active High)
+    upg_clk_i,  // UPG clock (10MHz)
+    upg_wen_i,  // UPG write enable
+    upg_adr_i,  // UPG write address
+    upg_dat_i,  // UPG write data
+    upg_done_i  // 1 if program finished
 );
   output [31:0] Instruction;  // the instruction fetched from this module
   output [31:0] branch_base_addr;  // (pc+4) to ALU which is used by branch type instruction
@@ -59,39 +60,34 @@ upg_dat_i, // UPG write data
   input Jr;  // while Jr is 1, it means current instruction is jr
   input Zero;  // while Zero is 1, it means the ALUresult is zero
   input        clock,reset;           // Clock and reset (Synchronous reset signal, high level is effective, when reset=1, PC value is 0)
-  
+
   reg [31:0] PC, Next_PC;
   assign branch_base_addr = PC + 4;
 
-input rom_clk_i; // ROM clock
-input[13:0] rom_adr_i; // From IFetch
-output [31:0] Instruction_o;// To IFetch
-// UART Programmer Pinouts
-input upg_rst_i; // UPG reset (Active High)
-input upg_clk_i; // UPG clock (10MHz)
-input upg_wen_i; // UPG write enable
-input[13:0] upg_adr_i; // UPG write address
-input[31:0] upg_dat_i; // UPG write data
-input upg_done_i ;// 1 if program finished
+  // input rom_clk_i;  // ROM clock
+  // input [13:0] rom_adr_i;  // From IFetch
+  // output [31:0] Instruction_o;  // To IFetch
 
-/* if kickOff is 1 means CPU work on normal mode, otherwise CPU work on Uart communication mode */
-wire kickOff = upg_rst_i | (~upg_rst_i & upg_done_i );
-prgrom instmem (
-.clka (kickOff ? rom_clk_i : upg_clk_i ),
-.wea (kickOff ? 1'b0 : upg_wen_i ),
-.addra (kickOff ? rom_adr_i : upg_adr_i ),
-.dina (kickOff ? 32'h00000000 : upg_dat_i ),
-.douta (Instruction_o)
-);
+  // UART Programmer Pinouts
+  input upg_rst_i;  // UPG reset (Active High)
+  input upg_clk_i;  // UPG clock (10MHz)
+  input upg_wen_i;  // UPG write enable
+  input [13:0] upg_adr_i;  // UPG write address
+  input [31:0] upg_dat_i;  // UPG write data
+  input upg_done_i;  // 1 if program finished
+
+  /* if kickOff is 1 means CPU work on normal mode, otherwise CPU work on Uart communication mode */
+  wire kickOff = upg_rst_i | (~upg_rst_i & upg_done_i);
 
 
 
-
-
-
-
-
-
+  prgrom instmem (
+      .clka (kickOff ? clock : upg_clk_i),
+      .wea  (kickOff ? 1'b0 : upg_wen_i),
+      .addra(kickOff ? PC[15:2] : upg_adr_i),
+      .dina (kickOff ? `ZeroWord : upg_dat_i),
+      .douta(kickOff ? Instruction : `ZeroWord)
+  );
 
   always @(*) begin
     if (Jr) begin
@@ -119,11 +115,12 @@ prgrom instmem (
     if (Jmp || Jal) link_addr = branch_base_addr;
   end
 
-  prgrom myRAM (
-      .clka(clock),  // input wire clka
-      .addra(PC[15:2]),  // input wire [13 : 0] addra
-      .douta(Instruction)  // output wire [31 : 0] douta
-  );
+
+  // prgrom myRAM (
+  //     .clka(clock),  // input wire clka
+  //     .addra(PC[15:2]),  // input wire [13 : 0] addra
+  //     .douta(Instruction)  // output wire [31 : 0] douta
+  // );
 
 
 endmodule
