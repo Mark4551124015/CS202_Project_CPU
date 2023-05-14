@@ -209,7 +209,7 @@ module top (
       .upg_clk_i(upg_clk_o),  // UPG clock (10MHz)
       .upg_wen_i(upg_wne_o),  // UPG write enable
       .upg_dat_i(upg_dat_o),  // UPG write address
-      .upg_dat_i(upg_dat_o),  // UPG write data
+      .upg_adr_i(upg_adr_o),  // UPG write data
       .upg_done_i(upg_done_o)  // 1 if program finished
   );
 
