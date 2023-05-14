@@ -94,9 +94,6 @@ if { $::argc > 0 } {
   }
 }
 
-# # Set the directory path for the original project from where this script was exported
-# set orig_proj_dir "[file normalize "$origin_dir/../../cs202_lab"]"
-
 # Create project
 create_project ${project_name} ./${project_name} -part xc7a100tfgg484-1
 
