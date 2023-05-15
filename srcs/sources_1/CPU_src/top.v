@@ -51,7 +51,7 @@ module top (clock,
     initial begin
         inited <= 0;
     end
-    always @(clock) begin
+    always @(posedge clock) begin
         if (inited) begin
             clk <= clk_23mhz;
         end
@@ -221,8 +221,8 @@ module top (clock,
     .MemorIOtoReg(MemorIOtoReg),
     .RegDst(RegDST),
     .Sign_extend(Imme_extend),
-    .clock(clock),
-    .reset(reset),
+    .clock(clk),
+    .reset(rst),
     .opcplus4(link_addr)
     );
     

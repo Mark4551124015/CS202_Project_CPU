@@ -34,20 +34,22 @@ module IO_module (IO_input,
     // input clock;  //Clock signal.
     input IORead,IOWrite;
     input [7:0] IO_input;
-    output reg [23:0] IO_output;
     input [2:0] TEST_input;
     input [31:0] ALU_result;
     input [31:0] MemReadData;
     input enterA,enterB;
     output reg [31:0] MemorIO_Result;
+    output reg [23:0] IO_output;
     
-    reg [7:0] A_tmp;
-    reg [7:0] B_tmp;
+    // reg [7:0] A_tmp;
+    // reg [7:0] B_tmp;
     reg [23:0] led_tmp;
-    reg [7:0] A_reg , B_reg;
+    reg [7:0] A_reg;
+    reg [7:0] B_reg;
     initial begin
-        A_reg = 8'b0;
-        B_reg = 8'b0;
+        A_reg <= 8'b0;
+        B_reg <= 8'b0;
+        IO_output <=24'b0;
     end
     // reg [23:0] Leds;
     // assign IO_output      = Leds;
@@ -57,16 +59,15 @@ module IO_module (IO_input,
     // assign MemorIO_Result = IORead ? IO_reg : MemReadData;
     always @(*) begin
         if(enterA) A_reg <= IO_input;
-        else A_reg <= A_tmp;
+        // else A_reg <= A_tmp;
         if(enterB) B_reg <= IO_input;
-        else B_reg <= B_tmp;
-        A_tmp <= A_reg;
-        B_tmp <= B_reg;
+        // else B_reg <= B_tmp;
+        // A_tmp <= A_reg;
+        // B_tmp <= B_reg;
     end
 
     always @(*) begin
         if (IOWrite) IO_output <= ALU_result;
-        else IO_output <= led_tmp;
         if (IORead) begin
             case (ALU_result)
                 `IO_A_ADDR: MemorIO_Result    = {24'b0,A_reg};
@@ -77,7 +78,6 @@ module IO_module (IO_input,
         end else begin
             MemorIO_Result = MemReadData;
         end
-        led_tmp <= IO_output;
     end
     
     
