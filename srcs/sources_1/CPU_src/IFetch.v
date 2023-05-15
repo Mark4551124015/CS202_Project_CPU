@@ -45,7 +45,8 @@ module Ifetc32 (
     upg_wen_i,  // UPG write enable
     upg_adr_i,  // UPG write address
     upg_dat_i,  // UPG write data
-    upg_done_i  // 1 if program finished
+    upg_done_i,  // 1 if program finished
+    inited
 );
   output reg [31:0] Instruction;  // the instruction fetched from this module
   output [31:0] branch_base_addr;  // (pc+4) to ALU which is used by branch type instruction
@@ -74,6 +75,7 @@ module Ifetc32 (
   input [14:0] upg_adr_i;  // UPG write address
   input [31:0] upg_dat_i;  // UPG write data
   input upg_done_i;  // 1 if program finished
+  input inited;
 
   /* if kickOff is 1 means CPU work on normal mode, otherwise CPU work on Uart communication mode */
   wire kickOff = upg_rst_i | (~upg_rst_i & upg_done_i);
@@ -91,12 +93,16 @@ module Ifetc32 (
   );
 
   always @(*) begin
-    if (Jr) begin
+    if (reset) begin
+      Next_PC = `ZeroWord;
+    end
+    else if (Jr) begin
       Next_PC = Read_data_1;
     end else if ((Branch && Zero) || (nBranch && ~Zero)) begin
       Next_PC = Addr_result;
-    end else begin
+    end else if (PC < 16'd65535)begin
       Next_PC = PC + 4;
+    end else begin
     end
 
     if (kickOff) begin
@@ -109,10 +115,13 @@ module Ifetc32 (
     if (reset) begin
       PC = `ZeroWord;
     end 
+    else if (!inited) begin
+    end
     else begin
       if (Jmp || Jal) begin
         PC = {4'b0000, Instruction[25:0], 2'b00};
-      end else PC = Next_PC;
+      end 
+      else PC = Next_PC;
     end
   end
 

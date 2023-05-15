@@ -27,6 +27,7 @@ module IO_module (IO_input,
                   IORead,
                   IOWrite,
                   ALU_result,
+                  Read_data_2,
                   MemReadData,
                   MemorIO_Result,
                   enterA,
@@ -35,6 +36,7 @@ module IO_module (IO_input,
     input IORead,IOWrite;
     input [7:0] IO_input;
     input [2:0] TEST_input;
+    input [31:0] Read_data_2;
     input [31:0] ALU_result;
     input [31:0] MemReadData;
     input enterA,enterB;
@@ -49,7 +51,7 @@ module IO_module (IO_input,
     initial begin
         A_reg <= 8'b0;
         B_reg <= 8'b0;
-        IO_output <=24'b0;
+        IO_output <=24'd65535;
     end
     // reg [23:0] Leds;
     // assign IO_output      = Leds;
@@ -58,22 +60,27 @@ module IO_module (IO_input,
     // assign             = (ALU_Result == `IO_B_ADDR) ? {24'b0,B_reg} : {24'b0,A_reg};
     // assign MemorIO_Result = IORead ? IO_reg : MemReadData;
     always @(*) begin
-        if(enterA) A_reg <= IO_input;
+        if(enterA) begin
+            A_reg <= IO_input;
+            // IO_output <= A_reg;
+        end
         // else A_reg <= A_tmp;
-        if(enterB) B_reg <= IO_input;
+        if(enterB) begin
+            B_reg <= IO_input;
+        end
         // else B_reg <= B_tmp;
         // A_tmp <= A_reg;
         // B_tmp <= B_reg;
     end
-
     always @(*) begin
-        if (IOWrite) IO_output <= ALU_result;
+        // IO_output = {5'b0,TEST_input,B_reg,A_reg};
+        if (IOWrite) IO_output <= Read_data_2;
         if (IORead) begin
             case (ALU_result)
-                `IO_A_ADDR: MemorIO_Result    = {24'b0,A_reg};
-                `IO_B_ADDR: MemorIO_Result    = {24'b0,B_reg};
-                `IO_TEST_ADDR: MemorIO_Result = {29'b0, TEST_input};
-                default: MemorIO_Result       = MemReadData;
+                `IO_A_ADDR: MemorIO_Result    <= {24'b0,A_reg};
+                `IO_B_ADDR: MemorIO_Result    <= {24'b0,B_reg};
+                `IO_TEST_ADDR: MemorIO_Result <= {29'b0, TEST_input};
+                default: MemorIO_Result       <= MemReadData;
             endcase
         end else begin
             MemorIO_Result = MemReadData;

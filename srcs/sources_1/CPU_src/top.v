@@ -21,23 +21,27 @@
 
 
 module top (clock,
-            rst_n,
+            reset,
             switch,
             led,
             button,
+            seg_en,
+            seg_out,
             rx,
             tx);
     input clock;
-    input rst_n;
+    input reset;
     input [23:0] switch;
     output [23:0] led;
+    output [7:0] seg_en;
+    output [7:0] seg_out;
     
     
     //  input [23:0] switch2N4;
     //   output [23:0] led2N4;  // UART Programmer Pinouts
     
     input [4:0] button;
-    
+    wire clk_10hz;
     wire enter,enterA,enterB,start_pg;
     
     
@@ -45,17 +49,14 @@ module top (clock,
     output tx;  // start Uart communicate at high level
     wire rst;
     wire clk_23mhz;
-    reg clk;
+    wire clk;
     wire clk_10mhz;
     reg inited;
     initial begin
         inited <= 0;
     end
     always @(posedge clock) begin
-        if (inited) begin
-            clk <= clk_23mhz;
-        end
-        if (!rst_n) begin
+        if (reset) begin
             inited <= 0;
         end else if (enter) begin
             inited <= 1;
@@ -67,6 +68,13 @@ module top (clock,
     .clk_out1(clk_23mhz),
     .clk_out2(clk_10mhz)
     );
+    clk_module #(
+      .frequency(5)
+  ) clk_div (
+      .clk(clock),
+      .enable(1),
+      .clk_out(clk)
+  );
     
     
     // UART Programmer Pinouts
@@ -77,7 +85,8 @@ module top (clock,
     wire [31:0] upg_dat_o;  //data to program_rom or dmemory32
     wire spg_bufg;
     wire [31:0] switch_out = switch;
-    wire prg_ram;
+ 
+
     
     
     // Button and switches up,mid,down,left,right
@@ -85,19 +94,23 @@ module top (clock,
     // .I(button[4]),
     // .O(enter)
     // );
-    BUFG U2 (
+    TW U2 (
+    .clk(clock),
     .I(button[3]),
     .O(enter)
     );
-    BUFG U3 (
+    TW U3 (
+    .clk(clock),
     .I(button[2]),
     .O(start_pg)
     );
-    BUFG U4 (
+    TW U4 (
+    .clk(clock),
     .I(button[1]),
     .O(enterA)
     );
-    BUFG U5 (
+    TW U5 (
+    .clk(clock),
     .I(button[0]),
     .O(enterB)
     );
@@ -107,20 +120,19 @@ module top (clock,
     // .O(spg_bufg)
     // )
     assign spg_bufg = start_pg;
-    assign prg_ram  = switch[19];
     
-    
+
     reg upg_rst;
-    always @(posedge clk) begin
+    always @(posedge clock) begin
         if (spg_bufg) upg_rst = 0;
-        if (~rst_n) upg_rst   = 1;
+        if (reset) upg_rst   = 1;
     end
     
     //used for other modules which don't relate to UART
-    assign rst = ~rst_n | !upg_rst;
+    assign rst = reset | !upg_rst;
 
 
-    
+
     uart UART (
     .upg_clk_i(clk_10mhz),
     .upg_rst_i(upg_rst),
@@ -146,7 +158,6 @@ module top (clock,
     wire RegDST, MemorIOtoReg, RegWrite, MemWrite;
     wire ALUSrc, I_format, Sftmd;
     wire [1:0] ALUOp;
-    wire [21:0] Alu_resultHigh;
     wire [31:0] MemReadData;
     wire [31:0] MemorIO_Result;
     wire MemRead, IORead, IOWrite;
@@ -158,6 +169,7 @@ module top (clock,
     wire [31:0] Read_data_2;  // 读数2
     wire [31:0] Imme_extend;  // 立即(符号拓展)
     wire [31:0] r_wdata;
+    wire [23:0] seg_data;
     assign opcode          = Instruction[31:26];
     assign Shamt           = Instruction[10:6];
     assign Function_opcode = Instruction[5:0];
@@ -182,7 +194,8 @@ module top (clock,
     .upg_wen_i(upg_wen_o),     // UPG write enable
     .upg_adr_i(upg_adr_o),     // UPG write address
     .upg_dat_i(upg_dat_o),     // UPG write data
-    .upg_done_i(upg_done_o)    // 1 if program finished
+    .upg_done_i(upg_done_o),    // 1 if program finished
+    .inited(inited)
     );
     
     
@@ -209,7 +222,7 @@ module top (clock,
     .IOWrite(IOWrite)
     );
     
-    
+
     decode32 u3 (
     .Read_data_1(Read_data_1),
     .Read_data_2(Read_data_2),
@@ -247,16 +260,19 @@ module top (clock,
     
     IO_module MemORIO(
     .IO_input(switch_out[7:0]),
-    .IO_output(led),
+    // .IO_output(led),
+    .IO_output(seg_data),
     .TEST_input(switch_out[23:21]),
     .IORead(IORead),
     .IOWrite(IOWrite),
     .ALU_result(ALU_result),
+    .Read_data_2(Read_data_2),
     .MemReadData(MemReadData),
     .MemorIO_Result(MemorIO_Result),
     .enterA(enterA),
     .enterB(enterB)
     );
+
     
     dmemory32 uram (
     .clock(clk),
@@ -274,5 +290,14 @@ module top (clock,
     
     // debug
     // assign debug = ALU_result;
+    assign led[21:0] = ALU_result[21:0];
+    seg_display seg(
+        .clk(clock),
+        .data_display(seg_data),
+        .seg_out(seg_out),
+        .seg_en(seg_en)
+    );
+    // assign led[23:16] = ALU_result[8:0];
+    // assign led = ALU_result[23:0];
     
 endmodule

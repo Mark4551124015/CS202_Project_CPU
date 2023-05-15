@@ -107,9 +107,10 @@
 
 /*定义常用的常量*/
 `define     PC_START_ADDR   32'h80000000    // PC起始地址
-`define     IO_TEST_ADDR       32'hFFFFFC00
+`define     IO_TEST_ADDR    32'hFFFFFC00
 `define     IO_A_ADDR       32'hFFFFFC04
 `define     IO_B_ADDR       32'hFFFFFC08
+
 `define     RstEnable       1'b1            //复位使能
 `define     RstDisable      1'b0            //复位除能
 `define     WriteEnable     1'b1            //写使能

@@ -75,11 +75,11 @@ module control32 (
 
   wire MemRead;
   //OJ need
-  //   assign MemWrite = sw;
-  //   assign MemRead  = lw;
+    assign MemWrite = sw;
+    assign MemRead  = lw;
   wire IO = (Alu_resultHigh == `IO_MEM);
-  assign MemWrite     = (sw && !IO);
-  assign MemRead      = (lw && !IO);
+  // assign MemWrite     = (sw && !IO);
+  // assign MemRead      = (lw && !IO);
   assign IORead       = (lw && IO);
   assign IOWrite      = (sw && IO);
   assign MemorIOtoReg = IORead || MemRead;
