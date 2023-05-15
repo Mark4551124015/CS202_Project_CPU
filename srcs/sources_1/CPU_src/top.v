@@ -44,12 +44,27 @@ module top (clock,
     input rx;
     output tx;  // start Uart communicate at high level
     wire rst;
-    wire clk;
+    wire clk_23mhz;
+    reg clk;
     wire clk_10mhz;
-    wire PC_delay;
-    cpuclk clk_23mhz (
+    reg inited;
+    initial begin
+        inited <= 0;
+    end
+    always @(clock) begin
+        if (inited) begin
+            clk <= clk_23mhz;
+        end
+        if (!rst_n) begin
+            inited <= 0;
+        end else if (enter) begin
+            inited <= 1;
+        end
+    end
+
+    cpuclk clk_mod (
     .clk_in1 (clock),
-    .clk_out1(clk),
+    .clk_out1(clk_23mhz),
     .clk_out2(clk_10mhz)
     );
     
@@ -103,6 +118,7 @@ module top (clock,
     
     //used for other modules which don't relate to UART
     assign rst = ~rst_n | !upg_rst;
+
 
     
     uart UART (
@@ -161,8 +177,6 @@ module top (clock,
     .clock(clk),
     .reset(rst),
     .link_addr(link_addr),
-    .PC_delay(PC_delay),
-    .enter(enter),
     .upg_rst_i(upg_rst),       // UPG reset (Active High)
     .upg_clk_i(upg_clk_o),     // UPG clock (10MHz)
     .upg_wen_i(upg_wen_o),     // UPG write enable
@@ -205,7 +219,7 @@ module top (clock,
     .Jal(Jal),
     .RegWrite(RegWrite),
     .MemorIOtoReg(MemorIOtoReg),
-    .RegDst(RegDst),
+    .RegDst(RegDST),
     .Sign_extend(Imme_extend),
     .clock(clock),
     .reset(reset),
@@ -246,7 +260,7 @@ module top (clock,
     
     dmemory32 uram (
     .clock(clk),
-    .memWrite(memWrite),
+    .memWrite(MemWrite),
     .address(ALU_result),
     .writeData(Read_data_2),
     .readData(MemReadData),
