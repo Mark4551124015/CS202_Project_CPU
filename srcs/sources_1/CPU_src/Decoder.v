@@ -23,8 +23,8 @@
 `include "includes/defines.v"
 
 module decode32 (
-    read_data_1,
-    read_data_2,
+    Read_data_1,
+    Read_data_2,
     Instruction,
     mem_data,
     ALU_result,
@@ -35,20 +35,17 @@ module decode32 (
     Sign_extend,
     clock,
     reset,
-    opcplus4,
-    MemWrite, IOWrite,
-    MemRead, IORead
+    opcplus4
 );
-  output [31:0] read_data_1;  // 输出的第一操作数
-  output [31:0] read_data_2;  // 输出的第二操作数
+  output [31:0] Read_data_1;  // 输出的第一操作数
+  output [31:0] Read_data_2;  // 输出的第二操作数
   input [31:0] Instruction;  // 取指单元来的指令
   input [31:0] mem_data;  //  从DATA RAM or I/O port取出的数据
   input [31:0] ALU_result;  // 从执行单元来的运算的结果
   input Jal;  //  来自控制单元，说明是JAL指令 
   input RegWrite;  // 来自控制单元
   input MemorIOtoReg;
-  input MemWrite, IOWrite;
-  input MemRead, IORead;
+
 
   input RegDst;
   output [31:0] Sign_extend;  // 扩展后的32位立即数
@@ -81,8 +78,8 @@ module decode32 (
   assign Sign_extend = (opcode == `ANDI_OP || opcode == `ORI_OP || 
                         opcode == `XORI_OP || opcode == `SLTIU_OP) ? {16'b0, immediate} : {{16{immediate[15]}}, immediate};
 
-  assign read_data_1 = register[rs];
-  assign read_data_2 = register[rt];
+  assign Read_data_1 = register[rs];
+  assign Read_data_2 = register[rt];
 
   always @(negedge clock) begin
     if (RegWrite) begin

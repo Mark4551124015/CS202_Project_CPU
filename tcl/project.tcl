@@ -134,6 +134,7 @@ set files [list \
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/Controller.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/Decoder.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/IFetch.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/IO.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/Dmem32.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/includes/defines.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/ip/RAM/RAM.xci"]"\
@@ -141,6 +142,7 @@ set files [list \
  "[file normalize "$origin_dir/srcs/sources_1/ip/prgrom/prgrom.xci"]"\
  "[file normalize "$origin_dir/coe/prgrom.coe"]"\
  "[file normalize "$origin_dir/srcs/sources_1/ip/cpuclk/cpuclk.xci"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/ip/uart/uart.xci"]"\
 ]
 # set local_files [import_files -fileset sources_1 $files]
 add_files -norecurse -fileset $obj $files

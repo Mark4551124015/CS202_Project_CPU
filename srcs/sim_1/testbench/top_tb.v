@@ -41,7 +41,6 @@ module top_tb();
     end
     top cpu(
         .clock(clk),
-        .rst(rst),
-        .debug(Instruction)
+        .rst_n(rst)
     );
 endmodule

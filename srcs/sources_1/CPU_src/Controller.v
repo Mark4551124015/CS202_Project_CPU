@@ -22,12 +22,11 @@
 `include "includes/defines.v"
 
 module control32 (
-    Opcode,
+    opcode,
     Function_opcode,
     Jr,
     RegDST,
     ALUSrc,
-    // MemtoReg,
     RegWrite,
     MemWrite,
     Branch,
@@ -42,7 +41,7 @@ module control32 (
     IORead,
     IOWrite
 );
-  input [5:0] Opcode;  // 来自IFetch模块的指令高6bit
+  input [5:0] opcode;  // 来自IFetch模块的指令高6bit
   input [5:0]   Function_opcode;  	// 来自IFetch模块的指令低6bit，用于区分r-类型中的指令
   input [21:0] Alu_resultHigh;
   output Jr;  // 为1表明当前指令是jr，为0表示当前指令不是jr
@@ -62,17 +61,17 @@ module control32 (
   output MemorIOtoReg;
 
   wire R_format, sw, lw;
-  assign R_format = (Opcode == `R_OP);
-  assign I_format = (Opcode[5:3] == 3'b001);
-  assign lw       = (Opcode == `LW_OP);
-  assign sw       = (Opcode == `SW_OP);
+  assign R_format = (opcode == `R_OP);
+  assign I_format = (opcode[5:3] == 3'b001);
+  assign lw       = (opcode == `LW_OP);
+  assign sw       = (opcode == `SW_OP);
   assign RegDST   = R_format && (~I_format && ~lw);  //rd or rt
   assign Jr       = (Function_opcode == `JR_FUNC && R_format);
   assign RegWrite = (R_format || lw || Jal || I_format) && !(Jr);  // Write memory or write IO
-  assign Jmp      = (Opcode == `J_OP);
-  assign Jal      = (Opcode == `JAL_OP);
-  assign Branch   = (Opcode == `BEQ_OP);
-  assign nBranch  = (Opcode == `BNE_OP);
+  assign Jmp      = (opcode == `J_OP);
+  assign Jal      = (opcode == `JAL_OP);
+  assign Branch   = (opcode == `BEQ_OP);
+  assign nBranch  = (opcode == `BNE_OP);
 
   wire MemRead;
   //OJ need

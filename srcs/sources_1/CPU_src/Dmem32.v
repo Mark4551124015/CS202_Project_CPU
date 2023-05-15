@@ -38,7 +38,7 @@ module dmemory32 (
     input upg_rst_i,  // UPG reset (Active High)
     input upg_clk_i,  // UPG ram_clk_i (10MHz)
     input upg_wen_i,  // UPG write enable
-    input [13:0] upg_adr_i,  // UPG write address
+    input [14:0] upg_adr_i,  // UPG write address
     input [31:0] upg_dat_i,  // UPG write data
     input upg_done_i
 );  // 1 if programming is finished
@@ -58,13 +58,15 @@ module dmemory32 (
 //   );
   reg [31:0] IO_in;     // 8bit switch
   reg [31:0] IO_out;    // 32bit leds
-
+  wire upg_wen = upg_wen_i & upg_adr_i[14];
+  wire [31:0] readData_tmp;
+  assign readData = kickOff ? readData_tmp:`ZeroWord;
   RAM MEM (
       .clka (kickOff ? clk : upg_clk_i),  
-      .wea  (kickOff ? memWrite : upg_wen_i),
-      .addra(kickOff ? address[15:2] : upg_adr_i),
+      .wea  (kickOff ? memWrite : upg_wen),
+      .addra(kickOff ? address[15:2] : upg_adr_i[13:0]),
       .dina (kickOff ? writeData : upg_dat_i),
-      .douta(kickOff ? `ZeroWord : readData)
+      .douta(readData_tmp)
   );
 
 endmodule
