@@ -27,7 +27,7 @@ module control32 (
     Jr,
     RegDST,
     ALUSrc,
-    MemtoReg,
+    // MemtoReg,
     RegWrite,
     MemWrite,
     Branch,
@@ -48,7 +48,7 @@ module control32 (
   output Jr;  // 为1表明当前指令是jr，为0表示当前指令不是jr
   output RegDST;  // 为1表明目的寄存器是rd，为0时表示目的寄存器是rt
   output ALUSrc;          // 为1表明第二个操作数（ALU中的Binput）来自立即数（beq，bne除外），为0时表示第二个操作数来自寄存器
-  output MemtoReg;     // 为1表明从存储器或I/O读取数据写到寄存器，为0时表示将ALU模块输出数据写到寄存器
+  // output MemtoReg;     // 为1表明从存储器或I/O读取数据写到寄存器，为0时表示将ALU模块输出数据写到寄存器
   output RegWrite;  // 为1表明该指令需要写寄存器，为0时表示不需要写寄存器
   output MemWrite;  // 为1表明该指令需要写存储器，为0时表示不需要写储存器
   output Branch;  // 为1表明是beq指令，为0时表示不是beq指令
@@ -74,7 +74,7 @@ module control32 (
   assign Branch   = (Opcode == `BEQ_OP);
   assign nBranch  = (Opcode == `BNE_OP);
 
-
+  wire MemRead;
   //OJ need
   //   assign MemWrite = sw;
   //   assign MemRead  = lw;
@@ -85,7 +85,7 @@ module control32 (
   assign IOWrite      = (sw && IO);
   assign MemorIOtoReg = IORead || MemRead;
   
-  assign MemtoReg     = MemRead;
+
   assign Sftmd        = (R_format && Function_opcode[5:3] == 3'b000);
   assign ALUOp        = {(R_format || I_format), (Branch || nBranch)};
   assign ALUSrc       = (I_format || lw || sw);

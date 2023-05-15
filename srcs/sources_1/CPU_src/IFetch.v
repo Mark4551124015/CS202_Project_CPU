@@ -35,6 +35,8 @@ module Ifetc32 (
     clock,
     reset,
     link_addr,
+    PC_delay,
+    enter;
     // rom_clk_i,  // ROM clock
     // rom_adr_i,  // From IFetch
     // Instruction_o,  // To IFetch
@@ -60,7 +62,8 @@ module Ifetc32 (
   input Jr;  // while Jr is 1, it means current instruction is jr
   input Zero;  // while Zero is 1, it means the ALUresult is zero
   input        clock,reset;           // Clock and reset (Synchronous reset signal, high level is effective, when reset=1, PC value is 0)
-
+  input PC_delay;
+  input enter;
   reg [31:0] PC, Next_PC;
   assign branch_base_addr = PC + 4;
 
@@ -78,7 +81,7 @@ module Ifetc32 (
 
   /* if kickOff is 1 means CPU work on normal mode, otherwise CPU work on Uart communication mode */
   wire kickOff = upg_rst_i | (~upg_rst_i & upg_done_i);
-
+  reg stall=1;
 
 
   prgrom instmem (
@@ -94,15 +97,21 @@ module Ifetc32 (
       Next_PC = Read_data_1;
     end else if ((Branch && Zero) || (nBranch && ~Zero)) begin
       Next_PC = Addr_result;
+    end
+    else if (PC_delay|stall) begin
+      Next_PC = PC;
     end else begin
       Next_PC = PC + 4;
     end
+    if (enter) stall = 0;
   end
 
   always @(negedge clock) begin
     if (reset) begin
       PC = `ZeroWord;
-    end else begin
+      stall = 1;
+    end 
+    else begin
       if (Jmp || Jal) begin
         PC = {4'b0000, Instruction[25:0], 2'b00};
       end else PC = Next_PC;

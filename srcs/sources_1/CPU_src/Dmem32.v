@@ -56,6 +56,8 @@ module dmemory32 (
 //       .dina (kickOff ? ram_dat_i : upg_dat_i),
 //       .douta(ram_dat_o)
 //   );
+  reg [31:0] IO_in;     // 8bit switch
+  reg [31:0] IO_out;    // 32bit leds
 
   RAM MEM (
       .clka (kickOff ? clk : upg_clk_i),  

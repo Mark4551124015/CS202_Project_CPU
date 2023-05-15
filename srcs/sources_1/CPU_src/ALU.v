@@ -67,7 +67,7 @@ module executs32 (
   reg  [31:0] Shift_Result;
 
   // 生成CPU控制码
-  wire [ 4:0] Ext_code;
+  wire [ 5:0] Ext_code;
   assign Ext_code = (I_format == 1'b0) ? Function_opcode : {3'b000, Exe_opcode[2:0]};
   wire [2:0] ALU_ctrl;
   assign ALU_ctrl[0] = (Ext_code[0] | Ext_code[3]) & ALUOp[1];

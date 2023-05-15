@@ -30,12 +30,14 @@ module decode32 (
     ALU_result,
     Jal,
     RegWrite,
-    MemtoReg,
+    MemorIOtoReg,
     RegDst,
     Sign_extend,
     clock,
     reset,
-    opcplus4
+    opcplus4,
+    MemWrite, IOWrite,
+    MemRead, IORead
 );
   output [31:0] read_data_1;  // 输出的第一操作数
   output [31:0] read_data_2;  // 输出的第二操作数
@@ -44,7 +46,10 @@ module decode32 (
   input [31:0] ALU_result;  // 从执行单元来的运算的结果
   input Jal;  //  来自控制单元，说明是JAL指令 
   input RegWrite;  // 来自控制单元
-  input MemtoReg;  // 来自控制单元
+  input MemorIOtoReg;
+  input MemWrite, IOWrite;
+  input MemRead, IORead;
+
   input RegDst;
   output [31:0] Sign_extend;  // 扩展后的32位立即数
   input clock, reset;  // 时钟和复位
@@ -89,8 +94,11 @@ module decode32 (
   always @(negedge clock) begin
     if (RegWrite) begin
       if (Jal) write_data <= opcplus4;
-      else if (!MemtoReg) write_data <= ALU_result;
-      else if (MemtoReg) write_data <= mem_data;
+      else if (!MemorIOtoReg) write_data <= ALU_result;
+      else if (MemorIOtoReg) begin
+          
+          write_data <= mem_data;
+      end
     end
   end
 
