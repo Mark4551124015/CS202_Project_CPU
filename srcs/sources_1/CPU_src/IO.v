@@ -66,6 +66,7 @@ module IO_module (
 
   reg seg_write;
   reg led_write;
+  reg blk_write;
 
 
   integer i;
@@ -112,22 +113,18 @@ module IO_module (
     end
 
     if (led_write) begin
-        IO_led_out <= Read_data_2;
+        IO_led_out <= Read_data_2[15:0];
     end
-
+    if (blk_write) begin
+      Blink_time = Read_data_2;
+    end
     if (Blink_time>0) begin
         IO_blink_out = 1;
         Blink_time = Blink_time - 1;
     end else begin
         IO_blink_out = 0;
     end
-
   end
-  
-
-
-
-
 
   always @(*) begin
     if (IOWrite) begin
@@ -135,21 +132,23 @@ module IO_module (
             `IO_SEG_ADDR: begin
                seg_write <= 1;
                led_write <= 0;
+               blk_write <= 0;
             end
             `IO_BLINK_ADDR: begin
-               Blink_time <= Read_data_2;
                seg_write <= 0;
                led_write <= 0;
+               blk_write <= 1;
             end
             `IO_LED_ADDR: begin
                seg_write <= 0;
+               blk_write <= 0;
                led_write <= 1;
             end
             default: begin
                seg_write <= 0;
+               blk_write <= 0;
                led_write <= 0;
             end
-
         endcase
     end
 

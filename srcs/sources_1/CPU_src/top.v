@@ -87,7 +87,8 @@ module top (clock,
     wire [31:0] upg_dat_o;  //data to program_rom or dmemory32
     wire spg_bufg;
     wire [31:0] switch_out = switch;
- 
+    wire blink_out;
+    wire [15:0] led_out;
 
     
     
@@ -265,7 +266,7 @@ module top (clock,
     .IO_seg_out(seg_data),
     .IO_led_out(led_data),
     .IO_blink_out(blink_need),
-    .TEST_input(switch_out[23:21]),
+    .TEST_input(switch_out[22:20]),
     .IORead(IORead),
     .IOWrite(IOWrite),
     .ALU_result(ALU_result),
@@ -273,7 +274,8 @@ module top (clock,
     .MemReadData(MemReadData),
     .MemorIO_Result(MemorIO_Result),
     .enterA(enterA),
-    .enterB(enterB)
+    .enterB(enterB),
+    .clk(clk)
     );
 
     
@@ -292,13 +294,17 @@ module top (clock,
     );
     
 
-    assign led[21:0] = ALU_result[21:0];
+
     displays disp(
         .clk(clock),
         .data_display(seg_data),
+        .led_display(led_data),
+        .blink_need(blink_need),
         .seg_out(seg_out),
-        .seg_en(seg_en)
+        .seg_en(seg_en),
+        .led_out(led_out),
+        .blink_out(blink_out)
     );
-
-    
+    assign led[15:0] = led_out[15:0];
+    assign led[16] = blink_out;
 endmodule
