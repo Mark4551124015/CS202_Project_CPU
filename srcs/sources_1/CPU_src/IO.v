@@ -50,6 +50,7 @@ module IO_module (
 
   reg [31:0] counter;
   reg [ 4:0] front;
+  reg [ 4:0] writter;
   reg [ 4:0] back;
 
   reg [23:0] VRAM       [0:31];
@@ -94,11 +95,13 @@ module IO_module (
   end
 
   always@(negedge clk) begin
-    // IO_led_out[22:13] = {front,back};
+    IO_led_out[9:0] = {front,back};
+    writter <= front;
+
     // IO_led_out[12:0] = Read_data_2[12:0];
     
     if (seg_write) begin
-        VRAM[front] = Read_data_2[23:0];
+        VRAM[writter] = Read_data_2[23:0];
         // VRAM[front] = 24'd114514;
         if (front != 5'd31) begin
             front <= front + 1;
@@ -120,7 +123,7 @@ module IO_module (
     end
 
     if (led_write) begin
-        IO_led_out = Read_data_2[15:0];
+        // IO_led_out = Read_data_2[15:0];
     end
 
     if (blk_write) begin
