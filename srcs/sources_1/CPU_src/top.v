@@ -64,7 +64,7 @@ module top (clock,
 
 
     clk_module #(
-        .frequency(10)
+        .frequency(3)
     ) clk_div (
         .clk(clock),
         .enable(1),
@@ -302,10 +302,10 @@ module top (clock,
         .blink_need(blink_need),
         .seg_out(seg_out),
         .seg_en(seg_en),
-        .led_out(led_out),
+        .led_out(led),
         .blink_out(blink_out)
     );
-    assign led[15:0] = led_out[15:0];
+    // assign led[15:0] = led_out[15:0];
     // assign led[16] = blink_out;
     // assign led[7:0] = ;
 endmodule
