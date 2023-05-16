@@ -50,7 +50,6 @@ module Ifetc32 (
   output reg [31:0] Instruction;  // the instruction fetched from this module
   output [31:0] branch_base_addr;  // (pc+4) to ALU which is used by branch type instruction
   output reg [31:0] link_addr;  // (pc+4) to Decoder which is used by jal instruction
-
   input [31:0] Addr_result;  // the calculated address from ALU
   input [31:0] Read_data_1;  // the address of instruction used by jr instruction
   input Branch;  // while Branch is 1,it means current instruction is beq
@@ -59,13 +58,10 @@ module Ifetc32 (
   input Jal;  // while Jal is 1, it means current instruction is jal
   input Jr;  // while Jr is 1, it means current instruction is jr
   input Zero;  // while Zero is 1, it means the ALUresult is zero
-  input        clock,reset;           // Clock and reset (Synchronous reset signal, high level is effective, when reset=1, PC value is 0)
+  input clock,reset;           // Clock and reset (Synchronous reset signal, high level is effective, when reset=1, PC value is 0)
   reg [31:0] PC, Next_PC;
   assign branch_base_addr = PC + 4;
 
-  // input rom_clk_i;  // ROM clock
-  // input [13:0] rom_adr_i;  // From IFetch
-  // output [31:0] Instruction_o;  // To IFetch
 
   // UART Programmer Pinouts
   input upg_rst_i;  // UPG reset (Active High)
@@ -121,16 +117,6 @@ module Ifetc32 (
   always @(posedge Jmp, posedge Jal, posedge reset) begin
     if (reset) link_addr = `ZeroWord;
     else if (Jmp || Jal) link_addr = branch_base_addr;
-    // else if (Jmp && Jal) link_addr = branch_base_addr;
-    
   end
-
-
-  // prgrom myRAM (
-  //     .clka(clock),  // input wire clka
-  //     .addra(PC[15:2]),  // input wire [13 : 0] addra
-  //     .douta(Instruction)  // output wire [31 : 0] douta
-  // );
-
-
+  
 endmodule
