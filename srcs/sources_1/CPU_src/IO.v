@@ -90,7 +90,7 @@ module IO_module (
     end
   end
 
-  always@(negedge clk) begin
+  always@(posedge clk) begin
     if (front != back) begin
         if (VRAM_time > 0) VRAM_time = VRAM_time - 1;
         else  begin
@@ -111,9 +111,10 @@ module IO_module (
             front = 0;
         end
     end
+    IO_led_out = {8'b0,A_reg,B_reg};
 
     if (led_write) begin
-        IO_led_out <= Read_data_2[15:0];
+        // IO_led_out <= Read_data_2[15:0];
     end
     if (blk_write) begin
       Blink_time = Read_data_2;
@@ -163,6 +164,7 @@ module IO_module (
       MemorIO_Result = MemReadData;
     end
   end
+
 
 
 
