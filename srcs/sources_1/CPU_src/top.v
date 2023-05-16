@@ -54,13 +54,7 @@ module top (clock,
     initial begin
         inited <= 0;
     end
-    always @(posedge clock) begin
-        if (reset) begin
-            inited <= 0;
-        end else if (enter) begin
-            inited <= 1;
-        end
-    end
+
 
     cpuclk clk_mod (
     .clk_in1 (clock),
@@ -125,6 +119,13 @@ module top (clock,
     always @(posedge clock) begin
         if (spg_bufg) upg_rst = 0;
         if (reset) upg_rst   = 1;
+    end
+    always @(posedge clock) begin
+        if (rst) begin
+            inited = 0;
+        end else if (enter) begin
+            inited = 1;
+        end
     end
     
     //used for other modules which don't relate to UART

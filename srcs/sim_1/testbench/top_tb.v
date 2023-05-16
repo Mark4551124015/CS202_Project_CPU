@@ -21,26 +21,12 @@
 
 
 module top_tb();
-    reg clk = 1;
-    reg cnt = 0;
-    wire [31:0] Instruction;
+   reg clock = 1'b0;
+   reg rst;
+   always #50 clock = ~clock;
 
-    reg rst;
-    initial begin
-        repeat(250) begin
-            if (cnt < 1) begin
-                rst = 1;
-                cnt = cnt+1;
-            end else begin
-                rst = 0;
-            end
-            #1 clk <= clk+1;
-            
-        end
-        $finish;
-    end
     top cpu(
         .clock(clk),
-        .rst_n(rst)
+        .reset(rst)
     );
 endmodule

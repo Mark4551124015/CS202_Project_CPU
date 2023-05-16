@@ -77,57 +77,62 @@ module IO_module (
     IO_led_out <= 24'b0;
     front <= 0;
     back <= 0;
-    for (i = 0; i < 32; i = i + 1) VRAM[i] <= 0;
+    for (i = 0; i < 32; i = i + 1) VRAM[i] = 0;
     VRAM_time = `One_Sec;
   end
 
   always @(*) begin
     if (enterA) begin
-      A_reg <= IO_input;
+      A_reg = IO_input;
     end
     if (enterB) begin
-      B_reg <= IO_input;
+      B_reg = IO_input;
     end
   end
 
-  always@(posedge clk) begin
-    if (front != back) begin
-        if (VRAM_time > 0) VRAM_time = VRAM_time - 1;
-        else  begin
-            if (back != 5'd31)back = back + 1;
-            else back = 0;
-            VRAM_time = `One_Sec;
+  always@(negedge clk) begin
+    // IO_led_out[22:13] = {front,back};
+    // IO_led_out[12:0] = Read_data_2[12:0];
+    
+    if (seg_write) begin
+        VRAM[front] = Read_data_2[23:0];
+        // VRAM[front] = 24'd114514;
+        if (front != 5'd31) begin
+            front <= front + 1;
+        end else begin
+            front <= 0;
         end
-        IO_seg_out <= VRAM[back];
-    end else begin
-        IO_seg_out <= 24'b0;
     end
 
-    if (seg_write) begin
-        VRAM[front] = Read_data_2;
-        if (front != 5'd31) begin
-            front = front + 1;
-        end else begin
-            front = 0;
+    if (front != back) begin
+        IO_seg_out = VRAM[back];
+        if (VRAM_time > 0) VRAM_time <= VRAM_time - 1;
+        else  begin
+            if (back != 5'd31) back <= back + 1;
+            else back <= 0;
+            VRAM_time <= `One_Sec;
         end
+    end else begin
+        IO_seg_out = 24'b0;
     end
-    IO_led_out = {8'b0,A_reg,B_reg};
 
     if (led_write) begin
-        // IO_led_out <= Read_data_2[15:0];
+        // IO_led_out = Read_data_2[15:0];
     end
+
     if (blk_write) begin
       Blink_time = Read_data_2;
     end
     if (Blink_time>0) begin
         IO_blink_out = 1;
-        Blink_time = Blink_time - 1;
+        Blink_time <= Blink_time - 1;
     end else begin
         IO_blink_out = 0;
     end
   end
 
   always @(*) begin
+    // IO_led_out[23] = IOWrite;
     if (IOWrite) begin
         case (ALU_result)
             `IO_SEG_ADDR: begin
@@ -146,23 +151,28 @@ module IO_module (
                led_write <= 1;
             end
             default: begin
-               seg_write <= 0;
-               blk_write <= 0;
-               led_write <= 0;
             end
         endcase
+    end else begin
+        seg_write <= 0;
+        blk_write <= 0;
+        led_write <= 0;
     end
+
+    IO_led_out = {20'b0,IOWrite,seg_write,led_write,blk_write};
 
     if (IORead) begin
       case (ALU_result)
-        `IO_A_ADDR:    MemorIO_Result <= {24'b0, A_reg};
-        `IO_B_ADDR:    MemorIO_Result <= {24'b0, B_reg};
-        `IO_TEST_ADDR: MemorIO_Result <= {29'b0, TEST_input};
-        default:       MemorIO_Result <= MemReadData;
+        `IO_A_ADDR:    MemorIO_Result = {24'b0, A_reg};
+        `IO_B_ADDR:    MemorIO_Result = {24'b0, B_reg};
+        `IO_TEST_ADDR: MemorIO_Result = {29'b0, TEST_input};
+        default:       MemorIO_Result = MemReadData;
       endcase
     end else begin
       MemorIO_Result = MemReadData;
     end
+
+    
   end
 
 
