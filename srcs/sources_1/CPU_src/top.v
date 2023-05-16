@@ -58,18 +58,18 @@ module top (clock,
 
     cpuclk clk_mod (
     .clk_in1 (clock),
-    // .clk_out1(clk),
+    .clk_out1(clk),
     .clk_out2(clk_10mhz)
     );
 
 
-    clk_module #(
-        .frequency(3)
-    ) clk_div (
-        .clk(clock),
-        .enable(1),
-        .clk_out(clk)
-    );
+    // clk_module #(
+    //     .frequency(3)
+    // ) clk_div (
+    //     .clk(clock),
+    //     .enable(1),
+    //     .clk_out(clk)
+    // );
         
     
     // UART Programmer Pinouts

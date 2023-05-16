@@ -70,7 +70,7 @@ module control32 (
   assign sw       = (opcode == `SW_OP);
   assign RegDST   = R_format && (~I_format && ~lw);  //rd or rt
   assign Jr       = (Function_opcode == `JR_FUNC && R_format);
-  assign RegWrite = (R_format || lw || Jal || I_format) && !(Jr);
+  assign RegWrite = (R_format || lw || Jal || I_format) && !(Jr) && inited;
   assign Jmp      = (opcode == `J_OP);
   assign Jal      = (opcode == `JAL_OP);
   assign Branch   = (opcode == `BEQ_OP);
@@ -78,13 +78,13 @@ module control32 (
 
   wire MemRead;
   //OJ need
-  assign MemWrite = sw;
-  assign MemRead  = lw;
+  assign MemWrite = sw && inited;
+  assign MemRead  = lw && inited;
   wire IO = (Alu_resultHigh == `IO_MEM);
   // assign MemWrite     = (sw && !IO);
   // assign MemRead      = (lw && !IO);
-  assign IORead       = (lw && IO);
-  assign IOWrite      = (sw && IO);
+  assign IORead       = (lw && IO && inited);
+  assign IOWrite      = (sw && IO && inited);
   assign MemorIOtoReg = IORead || MemRead;
 
 
