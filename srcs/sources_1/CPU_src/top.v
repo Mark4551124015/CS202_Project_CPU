@@ -305,7 +305,7 @@ module top (clock,
         .led_out(led),
         .blink_out(blink_out)
     );
-    // assign led[15:0] = led_out[15:0];
-    // assign led[16] = blink_out;
+    assign led[15:0] = led_out[15:0];
+    assign led[16] = blink_out;
     // assign led[7:0] = ;
 endmodule

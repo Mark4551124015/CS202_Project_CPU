@@ -95,7 +95,7 @@ module IO_module (
   end
 
   always@(negedge clk) begin
-    IO_led_out[9:0] = {front,back};
+    // IO_led_out[9:0] = {front,back};
     writter <= front;
 
     // IO_led_out[12:0] = Read_data_2[12:0];
@@ -123,7 +123,7 @@ module IO_module (
     end
 
     if (led_write) begin
-        // IO_led_out = Read_data_2[15:0];
+        IO_led_out = Read_data_2[15:0];
     end
 
     if (blk_write) begin
