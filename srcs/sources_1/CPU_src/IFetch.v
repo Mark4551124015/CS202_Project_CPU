@@ -95,19 +95,16 @@ module Ifetc32 (
   always @(*) begin
     if (reset) begin
       Next_PC = `ZeroWord;
-    end
-    else if (Jr) begin
+    end else if (Jr) begin
       Next_PC = Read_data_1;
     end else if ((Branch && Zero) || (nBranch && ~Zero)) begin
       Next_PC = Addr_result;
-    end else if (PC < 16'd65535)begin
+    end else if (PC < 16'd65535) begin
       Next_PC = PC + 4;
     end else begin
     end
 
-    if (kickOff) begin
-        Instruction = Instruction_read;
-    end
+    if (kickOff)  Instruction = Instruction_read; 
     else Instruction = `ZeroWord;
   end
 
@@ -116,12 +113,10 @@ module Ifetc32 (
       PC = `ZeroWord;
     end 
     else if (!inited) begin
-    end
-    else begin
+    end else begin
       if (Jmp || Jal) begin
         PC = {4'b0000, Instruction[25:0], 2'b00};
-      end 
-      else PC = Next_PC;
+      end else PC = Next_PC;
     end
   end
 
@@ -131,15 +126,9 @@ module Ifetc32 (
     if (reset) link_addr = `ZeroWord;
     else if (Jmp || Jal) link_addr = branch_base_addr;
     // else if (Jmp && Jal) link_addr = branch_base_addr;
-    
+
   end
 
-
-  // prgrom myRAM (
-  //     .clka(clock),  // input wire clka
-  //     .addra(PC[15:2]),  // input wire [13 : 0] addra
-  //     .douta(Instruction)  // output wire [31 : 0] douta
-  // );
 
 
 endmodule

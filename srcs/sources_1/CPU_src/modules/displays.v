@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module seg_display (
+module displays (
     input clk,  // 200hz system clock
     input [23:0] data_display,  // data_display data
     output reg [7:0] seg_en,  // Rnables of eight seven segment digital tubes

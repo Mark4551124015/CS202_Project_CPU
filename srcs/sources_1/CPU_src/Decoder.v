@@ -25,6 +25,7 @@
 module decode32 (
     Read_data_1,
     Read_data_2,
+
     Instruction,
     mem_data,
     ALU_result,
@@ -93,7 +94,6 @@ module decode32 (
       if (Jal) write_data <= opcplus4;
       else if (!MemorIOtoReg) write_data <= ALU_result;
       else if (MemorIOtoReg) begin
-          
           write_data <= mem_data;
       end
     end
@@ -103,7 +103,7 @@ module decode32 (
   always @(posedge clock) begin
     if (reset) begin
       for (i = 0; i < 32; i = i + 1) register[i] <= 0;
-    end else if (RegWrite && write_register_address != 0) begin
+    end else if (RegWrite && write_register_address != 0 ) begin
       register[write_register_address] <= write_data;
     end
   end

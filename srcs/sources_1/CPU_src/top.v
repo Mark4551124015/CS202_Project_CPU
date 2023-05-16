@@ -68,14 +68,16 @@ module top (clock,
     .clk_out1(clk_23mhz),
     .clk_out2(clk_10mhz)
     );
+
+
     clk_module #(
-      .frequency(5)
-  ) clk_div (
-      .clk(clock),
-      .enable(1),
-      .clk_out(clk)
-  );
-    
+        .frequency(20_000_000)
+    ) clk_div (
+        .clk(clock),
+        .enable(1),
+        .clk_out(clk)
+    );
+        
     
     // UART Programmer Pinouts
     wire upg_clk, upg_clk_o;
@@ -115,13 +117,10 @@ module top (clock,
     .O(enterB)
     );
     
-    // BUFG U6(
-    // .I(start_pg),
-    // .O(spg_bufg)
-    // )
+
+
     assign spg_bufg = start_pg;
     
-
     reg upg_rst;
     always @(posedge clock) begin
         if (spg_bufg) upg_rst = 0;
@@ -170,6 +169,8 @@ module top (clock,
     wire [31:0] Imme_extend;  // 立即(符号拓展)
     wire [31:0] r_wdata;
     wire [23:0] seg_data;
+    wire [23:0] led_data;
+    wire blink_need;
     assign opcode          = Instruction[31:26];
     assign Shamt           = Instruction[10:6];
     assign Function_opcode = Instruction[5:0];
@@ -219,7 +220,8 @@ module top (clock,
     .ALUOp(ALUOp),
     .Alu_resultHigh(ALU_result[31:10]),
     .IORead(IORead),
-    .IOWrite(IOWrite)
+    .IOWrite(IOWrite),
+    .inited(inited)
     );
     
 
@@ -260,8 +262,9 @@ module top (clock,
     
     IO_module MemORIO(
     .IO_input(switch_out[7:0]),
-    // .IO_output(led),
-    .IO_output(seg_data),
+    .IO_seg_out(seg_data),
+    .IO_led_out(led_data),
+    .IO_blink_out(blink_need),
     .TEST_input(switch_out[23:21]),
     .IORead(IORead),
     .IOWrite(IOWrite),
@@ -288,16 +291,14 @@ module top (clock,
     .upg_done_i(upg_done_o)    // 1 if program finished
     );
     
-    // debug
-    // assign debug = ALU_result;
+
     assign led[21:0] = ALU_result[21:0];
-    seg_display seg(
+    displays disp(
         .clk(clock),
         .data_display(seg_data),
         .seg_out(seg_out),
         .seg_en(seg_en)
     );
-    // assign led[23:16] = ALU_result[8:0];
-    // assign led = ALU_result[23:0];
+
     
 endmodule

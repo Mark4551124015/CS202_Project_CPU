@@ -24,6 +24,7 @@
 module control32 (
     opcode,
     Function_opcode,
+    inited,
     Jr,
     RegDST,
     ALUSrc,
@@ -44,6 +45,8 @@ module control32 (
   input [5:0] opcode;  // 来自IFetch模块的指令高6bit
   input [5:0]   Function_opcode;  	// 来自IFetch模块的指令低6bit，用于区分r-类型中的指令
   input [21:0] Alu_resultHigh;
+  input inited;
+
   output Jr;  // 为1表明当前指令是jr，为0表示当前指令不是jr
   output RegDST;  // 为1表明目的寄存器是rd，为0时表示目的寄存器是rt
   output ALUSrc;          // 为1表明第二个操作数（ALU中的Binput）来自立即数（beq，bne除外），为0时表示第二个操作数来自寄存器
@@ -67,7 +70,7 @@ module control32 (
   assign sw       = (opcode == `SW_OP);
   assign RegDST   = R_format && (~I_format && ~lw);  //rd or rt
   assign Jr       = (Function_opcode == `JR_FUNC && R_format);
-  assign RegWrite = (R_format || lw || Jal || I_format) && !(Jr);  // Write memory or write IO
+  assign RegWrite = (R_format || lw || Jal || I_format) && !(Jr) && inited;
   assign Jmp      = (opcode == `J_OP);
   assign Jal      = (opcode == `JAL_OP);
   assign Branch   = (opcode == `BEQ_OP);
@@ -75,15 +78,15 @@ module control32 (
 
   wire MemRead;
   //OJ need
-    assign MemWrite = sw;
-    assign MemRead  = lw;
+  assign MemWrite = sw && inited;
+  assign MemRead  = lw && inited;
   wire IO = (Alu_resultHigh == `IO_MEM);
   // assign MemWrite     = (sw && !IO);
   // assign MemRead      = (lw && !IO);
-  assign IORead       = (lw && IO);
-  assign IOWrite      = (sw && IO);
+  assign IORead       = (lw && IO && inited);
+  assign IOWrite      = (sw && IO && inited);
   assign MemorIOtoReg = IORead || MemRead;
-  
+
 
   assign Sftmd        = (R_format && Function_opcode[5:3] == 3'b000);
   assign ALUOp        = {(R_format || I_format), (Branch || nBranch)};
