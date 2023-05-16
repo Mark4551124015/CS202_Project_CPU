@@ -55,7 +55,7 @@ module executs32 (
   output [31:0] Addr_result;  // 计算的地址结果        
 
   input [31:0] PC_plus_4;  // 来自取指单元的PC+4
-  reg signed [31:0] ALU_output;
+  reg [31:0] ALU_output;
 
 
 
@@ -73,7 +73,10 @@ module executs32 (
   assign ALU_ctrl[0] = (Ext_code[0] | Ext_code[3]) & ALUOp[1];
   assign ALU_ctrl[1] = (!Ext_code[2]) | (!ALUOp[1]);
   assign ALU_ctrl[2] = (Ext_code[1] & ALUOp[1]) | ALUOp[0];
-
+  initial begin
+    ALU_output = 32'b0;
+    ALU_result = 32'b0;
+  end
 
   // ALU 计算，输出到 ALU_output
   always @(ALU_ctrl, A_in, B_in) begin

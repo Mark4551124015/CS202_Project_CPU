@@ -106,10 +106,16 @@
 
 
 /*定义常用的常量*/
+
 `define     PC_START_ADDR   32'h80000000    // PC起始地址
-`define     IO_TEST_ADDR       32'hFFFFFC00
+`define     IO_MEM          22'h3FFFFF      //IO所用的内存空间
+`define     IO_TEST_ADDR    32'hFFFFFC00
 `define     IO_A_ADDR       32'hFFFFFC04
 `define     IO_B_ADDR       32'hFFFFFC08
+`define     IO_SEG_ADDR     32'hFFFFFC0C
+`define     IO_LED_ADDR     32'hFFFFFC10
+`define     IO_BLINK_ADDR   32'hFFFFFC14
+
 `define     RstEnable       1'b1            //复位使能
 `define     RstDisable      1'b0            //复位除能
 `define     WriteEnable     1'b1            //写使能
@@ -126,4 +132,5 @@
 `define     Stop            1'b1            //停止
 `define     NoStop          1'b0            //不停止
 `define     NOPRegAddr      5'b00000        //空操作使用的寄存器地址
-`define     IO_MEM          22'h3FFFFF      //IO所用的内存空间
+
+`define     One_Sec         32'd23000000    //一秒
