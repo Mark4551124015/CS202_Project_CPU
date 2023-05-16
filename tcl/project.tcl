@@ -136,6 +136,10 @@ set files [list \
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/IFetch.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/IO.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/Dmem32.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/modules/clk_module.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/modules/displays.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/modules/n2s.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/modules/TW.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/includes/defines.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/ip/RAM/RAM.xci"]"\
  "[file normalize "$origin_dir/coe/RAM.coe"]"\

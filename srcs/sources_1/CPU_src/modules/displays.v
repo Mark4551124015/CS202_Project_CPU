@@ -21,17 +21,21 @@
 
 
 module displays (
-    input clk,  // 200hz system clock
+    input clk,  //100mhz system clock
     input [23:0] data_display,  // data_display data
+    input [23:0] led_display,  // data_display data
+    input blink_need,  // need_blink
     output reg [7:0] seg_en,  // Rnables of eight seven segment digital tubes
-    output [7:0] seg_out  // Outputs
+    output [7:0] seg_out,  // Outputs
+    output [15:0] led_out,
+    output blink_out
 );
   reg [3:0] num0, num1, num2, num3, num4, num5, num6, num7;  // num6 is MSB
   reg [3:0] current_num;
   reg [7:0] seg_state;
   wire [7:0] seg_out_tmp;
   assign seg_out = ~seg_out_tmp;
-
+  wire clk_1000hz, clk_3hz;
   n2s number_to_seg(
       .number (current_num),
       .seg_out(seg_out_tmp)
@@ -42,12 +46,22 @@ module displays (
   ) clk_div (
       .clk(clk),
       .enable(1),
-      .clk_out(clk_500hz)
+      .clk_out(clk_1000hz)
   );
 
+  clk_module #(
+      .frequency(3)
+  ) clk_div_3 (
+      .clk(clk),
+      .enable(blink_need),
+      .clk_out(clk_3hz)
+  );
+
+  assign blink_out = blink_need & clk_3hz;
+  assign led_out = led_display[15:0];
 
   //seg driver
-  always @(posedge clk_500hz) begin
+  always @(posedge clk_1000hz) begin
     if (seg_state != 8'b0000_0001) seg_state <= seg_state >> 1;
     else seg_state <= 8'b1000_0000;
   end
