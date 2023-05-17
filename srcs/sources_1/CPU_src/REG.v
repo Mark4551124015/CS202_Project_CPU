@@ -35,9 +35,9 @@ module registers (
     output reg [31:0] read_data_2,
 
     // Write Register
-    input write_enable,
-    input [4:0] write_reg,
-    input [31:0] write_data
+    input wb_we,
+    input [4:0] wb_write_reg,
+    input [31:0] wb_write_data
     );
     
     reg [31:0] registers[0:31];
@@ -48,8 +48,8 @@ module registers (
         if (rst) begin
             for(i = 0;i < 32; i = i + 1) registers[i] <= 0;
         end else begin
-            if (write_enable && write_reg != 5'b0) begin
-                registers[write_reg] <= write_data; 
+            if (wb_we && wb_write_reg != 5'b0) begin
+                registers[wb_write_reg] <= wb_write_data; 
             end
         end
     end
@@ -62,8 +62,8 @@ module registers (
             if (re_1) begin
                 if (read_addr_1 == 5'b0) begin
                     read_data_1 =5'b0;
-                end else if (re_1 == write_reg && write_enable) begin
-                    read_data_1 = write_data;
+                end else if (re_1 == wb_write_reg && wb_we) begin
+                    read_data_1 = wb_write_data;
                 end else begin
                     read_data_1 = registers[read_addr_1];
                 end
@@ -80,8 +80,8 @@ module registers (
             if (re_2) begin
                 if (read_addr_2 == 5'b0) begin
                     read_data_2 =5'b0;
-                end else if (re_2 == write_reg && write_enable) begin
-                    read_data_2 = write_data;
+                end else if (re_2 == wb_write_reg && wb_we) begin
+                    read_data_2 = wb_write_data;
                 end else begin
                     read_data_2 = registers[read_addr_2];
                 end

@@ -35,22 +35,16 @@ module top (clock,
     output [23:0] led;
     output [7:0] seg_en;
     output [7:0] seg_out;
-    
-    
-    //  input [23:0] switch2N4;
-    //   output [23:0] led2N4;  // UART Programmer Pinouts
-    
     input [4:0] button;
-    wire enter,enterA,enterB,start_pg;
-    
-    
     input rx;
     output tx;  // start Uart communicate at high level
+    
+    wire enter,enterA,enterB,start_pg;
     wire rst;
-    // wire clk_23mhz;
     wire clk;
     wire clk_10mhz;
     reg inited;
+
     initial begin
         inited <= 0;
     end
@@ -305,7 +299,5 @@ module top (clock,
         .led_out(led),
         .blink_out(blink_out)
     );
-    assign led[15:0] = led_out[15:0];
-    assign led[16] = blink_out;
-    // assign led[7:0] = ;
+    
 endmodule

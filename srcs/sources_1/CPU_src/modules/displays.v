@@ -23,20 +23,20 @@
 module displays (
     input clk,  //100mhz system clock
     input [23:0] data_display,  // data_display data
-    input [23:0] led_display,  // data_display data
+    input [15:0] led_display,  // data_display data
     input blink_need,  // need_blink
     output reg [7:0] seg_en,  // Rnables of eight seven segment digital tubes
     output [7:0] seg_out,  // Outputs
-    output [15:0] led_out,
+    output [24:0] led_out,
     output blink_out
 );
   reg [3:0] num0, num1, num2, num3, num4, num5, num6, num7;  // num6 is MSB
-  reg [3:0] current_num;
-  reg [7:0] seg_state;
+  reg  [3:0] current_num;
+  reg  [7:0] seg_state;
   wire [7:0] seg_out_tmp;
   assign seg_out = ~seg_out_tmp;
   wire clk_1000hz, clk_3hz;
-  n2s number_to_seg(
+  n2s number_to_seg (
       .number (current_num),
       .seg_out(seg_out_tmp)
   );
@@ -58,7 +58,7 @@ module displays (
   );
 
   assign blink_out = blink_need & clk_3hz;
-  assign led_out = led_display[15:0];
+  assign led_out   = led_display[15:0];
 
   //seg driver
   always @(posedge clk_1000hz) begin
@@ -67,26 +67,31 @@ module displays (
   end
 
   always @(posedge clk) begin
-    num7 <= data_display / 1_000_000_0 % 10;
-    num6 <= data_display / 1_000_000 % 10;
-    num5 <= data_display / 1_000_00 % 10;
-    num4 <= data_display / 1_000_0 % 10;
-    num3 <= data_display / 1_000 % 10;
-    num2 <= data_display / 1_00 % 10;
-    num1 <= data_display / 1_0 % 10;
-    num0 <= data_display % 10;
+    num7   <= data_display / 1_000_000_0 % 10;
+    num6   <= data_display / 1_000_000 % 10;
+    num5   <= data_display / 1_000_00 % 10;
+    num4   <= data_display / 1_000_0 % 10;
+    num3   <= data_display / 1_000 % 10;
+    num2   <= data_display / 1_00 % 10;
+    num1   <= data_display / 1_0 % 10;
+    num0   <= data_display % 10;
     seg_en <= ~seg_state;
     case (seg_state)
-    8'b1000_0000: current_num <= num7;
-    8'b0100_0000: current_num <= num6;
-    8'b0010_0000: current_num <= num5;
-    8'b0001_0000: current_num <= num4;
-    8'b0000_1000: current_num <= num3;
-    8'b0000_0100: current_num <= num2;
-    8'b0000_0010: current_num <= num1;
-    8'b0000_0001: current_num <= num0;
-    default: begin
-    end
+      8'b1000_0000: current_num <= num7;
+      8'b0100_0000: current_num <= num6;
+      8'b0010_0000: current_num <= num5;
+      8'b0001_0000: current_num <= num4;
+      8'b0000_1000: current_num <= num3;
+      8'b0000_0100: current_num <= num2;
+      8'b0000_0010: current_num <= num1;
+      8'b0000_0001: current_num <= num0;
+      default: begin
+      end
     endcase
   end
+
+  assign led_out[15:0] = led_display;
+  assign led_out[16]   = blink_need;
+  
+  // assign led_out[7:0] = ;
 endmodule

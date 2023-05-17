@@ -98,17 +98,18 @@
 
 
 /*定义MEM阶段的操作类型*/
-`define     MEM_NOP_OP      4'b0000         // NOP
-`define     MEM_LB_OP       4'b0001         // LB
-`define     MEM_LW_OP       4'b0010         // LW
-`define     MEM_SB_OP       4'b0011         // SB
-`define     MEM_SW_OP       4'b0100         // SW
+`define     MEM_NOP_OP      3'b000         // NOP
+`define     MEM_LB_OP       3'b001         // LB
+`define     MEM_LW_OP       3'b010         // LW
+`define     MEM_SB_OP       3'b011         // SB
+`define     MEM_SW_OP       3'b100         // SW
 
 
 /*定义常用的常量*/
 
-`define     PC_START_ADDR   32'h80000000    // PC起始地址
-`define     IO_MEM          22'h3FFFFF      //IO所用的内存空间
+`define     PC_START_ADDR   32'h80000000      // PC起始地址
+`define     IO_MEM          22'h3FFFFF        //IO所用的内存空间
+`define     IO_START_MEM    32'hFFFFFC00      //IO所用的内存空间
 `define     IO_TEST_ADDR    32'hFFFFFC00
 `define     IO_A_ADDR       32'hFFFFFC04
 `define     IO_B_ADDR       32'hFFFFFC08

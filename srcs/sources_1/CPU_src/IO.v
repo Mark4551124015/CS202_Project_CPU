@@ -22,52 +22,36 @@
 `include "includes/defines.v"
 
 module IO_module (
-    IO_input,
-    IO_seg_out,
-    IO_led_out,
-    IO_blink_out,
-    TEST_input,
-    IORead,
-    IOWrite,
-    ALU_result,
-    Read_data_2,
-    MemReadData,
-    MemorIO_Result,
-    enterA,
-    enterB,
-    clk
-);
-  // input clock;  //Clock signal.
-  input IORead, IOWrite;
-  input [7:0] IO_input;
-  input [2:0] TEST_input;
-  input [31:0] Read_data_2;
-  input [31:0] ALU_result;
-  input [31:0] MemReadData;
-  input enterA, enterB;
+  input clk,
+  input rst,
+  input io_we,
+  input [31:0] io_data,
+  input [31:0] io_addr,
+  output reg [31:0] io_read_data,
+  
+  // Interaction with IO
+  input enterA, enterB,
+  input [7:0] AB_input,
+  input [2:0] TEST_input,
 
-  input clk;
+  output reg [23:0] IO_seg_out,
+  output reg [23:0] IO_led_out,
+  output reg IO_blink_out
+);
 
   reg [31:0] counter;
   reg [ 4:0] front;
   reg [ 4:0] writter;
   reg [ 4:0] back;
-
   reg [23:0] VRAM       [0:31];
   reg [31:0] VRAM_time;
   reg [31:0] Blink_time;
 
-  output reg [31:0] MemorIO_Result;
-  output reg [23:0] IO_seg_out;
-  output reg [23:0] IO_led_out;
-  output reg IO_blink_out;
+
 
   reg [7:0] A_reg;
   reg [7:0] B_reg;
 
-  // reg seg_write;
-  // reg led_write;
-  // reg blk_write;  
   wire seg_write;
   wire led_write;
   wire blk_write;
@@ -87,79 +71,66 @@ module IO_module (
 
   always @(*) begin
     if (enterA) begin
-      A_reg = IO_input;
+      A_reg = AB_input;
     end
     if (enterB) begin
-      B_reg = IO_input;
+      B_reg = AB_input;
     end
   end
 
-  always@(negedge clk) begin
-    // IO_led_out[9:0] = {front,back};
+  always @(negedge clk) begin
     writter <= front;
-
-    // IO_led_out[12:0] = Read_data_2[12:0];
-    
     if (seg_write) begin
-        VRAM[writter] = Read_data_2[23:0];
-        // VRAM[front] = 24'd114514;
-        if (front != 5'd31) begin
-            front <= front + 1;
-        end else begin
-            front <= 0;
-        end
+      VRAM[writter] = io_data[23:0];
+      if (front != 5'd31) begin
+        front <= front + 1;
+      end else begin
+        front <= 0;
+      end
     end
 
     if (front != back) begin
-        IO_seg_out = VRAM[back];
-        if (VRAM_time > 0) VRAM_time <= VRAM_time - 1;
-        else  begin
-            if (back != 5'd31) back <= back + 1;
-            else back <= 0;
-            VRAM_time <= `One_Sec;
-        end
+      IO_seg_out = VRAM[back];
+      if (VRAM_time > 0) VRAM_time <= VRAM_time - 1;
+      else begin
+        if (back != 5'd31) back <= back + 1;
+        else back <= 0;
+        VRAM_time <= `One_Sec;
+      end
     end else begin
-        IO_seg_out = 24'b0;
+      IO_seg_out = 24'b0;
     end
 
     if (led_write) begin
-        IO_led_out = Read_data_2[15:0];
+      IO_led_out = io_data[15:0];
     end
 
     if (blk_write) begin
-      Blink_time <= Read_data_2;
+      Blink_time <= io_data * `One_Sec;
     end
-    if (Blink_time>0) begin
-        IO_blink_out = 1;
-        Blink_time <= Blink_time - 1;
+    if (Blink_time > 0) begin
+      IO_blink_out = 1;
+      Blink_time <= Blink_time - 1;
     end else begin
-        IO_blink_out = 0;
+      IO_blink_out = 0;
     end
   end
 
-  
-
-  assign seg_write = (IOWrite && ALU_result == `IO_SEG_ADDR);
-  assign led_write = (IOWrite && ALU_result == `IO_LED_ADDR);
-  assign blk_write = (IOWrite && ALU_result == `IO_BLINK_ADDR);
+  assign seg_write = (io_we && io_addr == `IO_SEG_ADDR);
+  assign led_write = (io_we && io_addr == `IO_LED_ADDR);
+  assign blk_write = (io_we && io_addr == `IO_BLINK_ADDR);
 
   always @(*) begin
-    // IO_led_out = {20'b0,IOWrite,seg_write,led_write,blk_write};
-    // IO_led_out[3:0] = Read_data_2[3:0];
-    // IO_led_out[11:4] = ALU_result[7:0];
-    // IO_seg_out = ALU_result;
-    // IO_led_out[22]   = IOWrite;
-    // IO_led_out[23]   = seg_write;
-
-    if (IORead) begin
-      case (ALU_result)
-        `IO_A_ADDR:    MemorIO_Result = {24'b0, A_reg};
-        `IO_B_ADDR:    MemorIO_Result = {24'b0, B_reg};
-        `IO_TEST_ADDR: MemorIO_Result = {29'b0, TEST_input};
-        default:       MemorIO_Result = MemReadData;
+    if (!io_we) begin
+      case (io_addr)
+        `IO_A_ADDR:    io_read_data = {24'b0, A_reg};
+        `IO_B_ADDR:    io_read_data = {24'b0, B_reg};
+        `IO_TEST_ADDR: io_read_data = {29'b0, TEST_input};
+        default:       io_read_data = `ZeroWord;
       endcase
     end else begin
-      MemorIO_Result = MemReadData;
+      io_read_data = `ZeroWord;
     end
   end
+
 endmodule

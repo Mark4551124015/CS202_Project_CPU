@@ -22,15 +22,15 @@
 `include "includes/defines.v"
 
 module IF (input clk,
-                input rst,
-                input [31:0] pc,
-                input upg_rst_i,            // UPG reset (Active High)
-                input upg_clk_i,            // UPG clock (10MHz)
-                input upg_wen_i,            // UPG write enable
-                input [14:0] upg_adr_i,     // UPG write address
-                input [31:0] upg_dat_i,     // UPG write data
-                input upg_done_i,
-                output reg [31:0] Instruction); // 1 if program finished
+            input rst,
+            input [31:0] pc,
+            input upg_rst_i,            // UPG reset (Active High)
+            input upg_clk_i,            // UPG clock (10MHz)
+            input upg_wen_i,            // UPG write enable
+            input [14:0] upg_adr_i,     // UPG write address
+            input [31:0] upg_dat_i,     // UPG write data
+            input upg_done_i,
+            output reg [31:0] Instruction); // 1 if program finished
     
     
     

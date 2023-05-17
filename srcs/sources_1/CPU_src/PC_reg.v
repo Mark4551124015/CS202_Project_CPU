@@ -36,7 +36,7 @@ module pc_reg (input clk,
     end
     
     always @(posedge clk) begin
-        if (chip_enable) pc <= `ZeroWord;
+        if (!chip_enable) pc <= `ZeroWord;
         else if (!stall) begin
             if (branch_flag) begin
                 pc <= branch_addr;
