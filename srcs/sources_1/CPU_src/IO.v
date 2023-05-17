@@ -50,6 +50,7 @@ module IO_module (
 
   reg [31:0] counter;
   reg [ 4:0] front;
+  reg [ 4:0] writter;
   reg [ 4:0] back;
 
   reg [23:0] VRAM       [0:31];
@@ -64,9 +65,12 @@ module IO_module (
   reg [7:0] A_reg;
   reg [7:0] B_reg;
 
-  reg seg_write;
-  reg led_write;
-  reg blk_write;
+  // reg seg_write;
+  // reg led_write;
+  // reg blk_write;  
+  wire seg_write;
+  wire led_write;
+  wire blk_write;
 
 
   integer i;
@@ -77,97 +81,85 @@ module IO_module (
     IO_led_out <= 24'b0;
     front <= 0;
     back <= 0;
-    for (i = 0; i < 32; i = i + 1) VRAM[i] <= 0;
+    for (i = 0; i < 32; i = i + 1) VRAM[i] = 0;
     VRAM_time = `One_Sec;
   end
 
   always @(*) begin
     if (enterA) begin
-      A_reg <= IO_input;
+      A_reg = IO_input;
     end
     if (enterB) begin
-      B_reg <= IO_input;
+      B_reg = IO_input;
     end
   end
 
   always@(negedge clk) begin
-    if (front != back) begin
-        if (VRAM_time > 0) VRAM_time = VRAM_time - 1;
-        else  begin
-            if (back != 5'd31)back = back + 1;
-            else back = 0;
-            VRAM_time = `One_Sec;
+    // IO_led_out[9:0] = {front,back};
+    writter <= front;
+
+    // IO_led_out[12:0] = Read_data_2[12:0];
+    
+    if (seg_write) begin
+        VRAM[writter] = Read_data_2[23:0];
+        // VRAM[front] = 24'd114514;
+        if (front != 5'd31) begin
+            front <= front + 1;
+        end else begin
+            front <= 0;
         end
-        IO_seg_out <= VRAM[back];
-    end else begin
-        IO_seg_out <= 24'b0;
     end
 
-    if (seg_write) begin
-        VRAM[front] = Read_data_2;
-        if (front != 5'd31) begin
-            front = front + 1;
-        end else begin
-            front = 0;
+    if (front != back) begin
+        IO_seg_out = VRAM[back];
+        if (VRAM_time > 0) VRAM_time <= VRAM_time - 1;
+        else  begin
+            if (back != 5'd31) back <= back + 1;
+            else back <= 0;
+            VRAM_time <= `One_Sec;
         end
+    end else begin
+        IO_seg_out = 24'b0;
     end
 
     if (led_write) begin
-        IO_led_out <= Read_data_2[15:0];
+        IO_led_out = Read_data_2[15:0];
     end
+
     if (blk_write) begin
-      Blink_time = Read_data_2;
+      Blink_time <= Read_data_2;
     end
     if (Blink_time>0) begin
         IO_blink_out = 1;
-        Blink_time = Blink_time - 1;
+        Blink_time <= Blink_time - 1;
     end else begin
         IO_blink_out = 0;
     end
   end
 
+  
+
+  assign seg_write = (IOWrite && ALU_result == `IO_SEG_ADDR);
+  assign led_write = (IOWrite && ALU_result == `IO_LED_ADDR);
+  assign blk_write = (IOWrite && ALU_result == `IO_BLINK_ADDR);
+
   always @(*) begin
-    if (IOWrite) begin
-        case (ALU_result)
-            `IO_SEG_ADDR: begin
-               seg_write <= 1;
-               led_write <= 0;
-               blk_write <= 0;
-            end
-            `IO_BLINK_ADDR: begin
-               seg_write <= 0;
-               led_write <= 0;
-               blk_write <= 1;
-            end
-            `IO_LED_ADDR: begin
-               seg_write <= 0;
-               blk_write <= 0;
-               led_write <= 1;
-            end
-            default: begin
-               seg_write <= 0;
-               blk_write <= 0;
-               led_write <= 0;
-            end
-        endcase
-    end
+    // IO_led_out = {20'b0,IOWrite,seg_write,led_write,blk_write};
+    // IO_led_out[3:0] = Read_data_2[3:0];
+    // IO_led_out[11:4] = ALU_result[7:0];
+    // IO_seg_out = ALU_result;
+    // IO_led_out[22]   = IOWrite;
+    // IO_led_out[23]   = seg_write;
 
     if (IORead) begin
       case (ALU_result)
-        `IO_A_ADDR:    MemorIO_Result <= {24'b0, A_reg};
-        `IO_B_ADDR:    MemorIO_Result <= {24'b0, B_reg};
-        `IO_TEST_ADDR: MemorIO_Result <= {29'b0, TEST_input};
-        default:       MemorIO_Result <= MemReadData;
+        `IO_A_ADDR:    MemorIO_Result = {24'b0, A_reg};
+        `IO_B_ADDR:    MemorIO_Result = {24'b0, B_reg};
+        `IO_TEST_ADDR: MemorIO_Result = {29'b0, TEST_input};
+        default:       MemorIO_Result = MemReadData;
       endcase
     end else begin
       MemorIO_Result = MemReadData;
     end
   end
-
-
-
-
-
-
-
 endmodule

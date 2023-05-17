@@ -106,13 +106,14 @@ module Ifetc32 (
 
   always @(negedge clock) begin
     if (reset) begin
-      PC = `ZeroWord;
+      PC <= `ZeroWord;
     end 
     else if (!inited) begin
+      PC <= `ZeroWord;
     end else begin
       if (Jmp || Jal) begin
-        PC = {4'b0000, Instruction[25:0], 2'b00};
-      end else PC = Next_PC;
+        PC <= {4'b0000, Instruction[25:0], 2'b00};
+      end else PC <= Next_PC;
     end
   end
 
@@ -122,5 +123,4 @@ module Ifetc32 (
     if (reset) link_addr = `ZeroWord;
     else if (Jmp || Jal) link_addr = branch_base_addr;
   end
-
 endmodule

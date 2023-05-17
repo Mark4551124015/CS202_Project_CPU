@@ -75,28 +75,29 @@ module decode32 (
 
   reg [4:0] write_register_address;
   reg [31:0] write_data;
-
+  reg need_write;
   assign Sign_extend = (opcode == `ANDI_OP || opcode == `ORI_OP || 
                         opcode == `XORI_OP || opcode == `SLTIU_OP) ? {16'b0, immediate} : {{16{immediate[15]}}, immediate};
 
   assign Read_data_1 = register[rs];
   assign Read_data_2 = register[rt];
 
-  always @(negedge clock) begin
-    if (RegWrite) begin
-      if (Jal) write_register_address <= 5'b11111;
-      else write_register_address <= RegDst ? rd : rt;
-    end
+  always @(*) begin
+
+      if (Jal) write_register_address = 5'b11111;
+      else write_register_address = RegDst ? rd : rt;
+
+
   end
 
-  always @(negedge clock) begin
-    if (RegWrite) begin
-      if (Jal) write_data <= opcplus4;
-      else if (!MemorIOtoReg) write_data <= ALU_result;
-      else if (MemorIOtoReg) begin
-          write_data <= mem_data;
-      end
+  always @(*) begin
+
+    if (Jal) write_data = opcplus4;
+    else if (!MemorIOtoReg) write_data = ALU_result;
+    else if (MemorIOtoReg) begin
+        write_data = mem_data;
     end
+
   end
 
   integer i;

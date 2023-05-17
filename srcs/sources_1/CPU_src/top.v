@@ -41,42 +41,35 @@ module top (clock,
     //   output [23:0] led2N4;  // UART Programmer Pinouts
     
     input [4:0] button;
-    wire clk_10hz;
     wire enter,enterA,enterB,start_pg;
     
     
     input rx;
     output tx;  // start Uart communicate at high level
     wire rst;
-    wire clk_23mhz;
+    // wire clk_23mhz;
     wire clk;
     wire clk_10mhz;
     reg inited;
     initial begin
         inited <= 0;
     end
-    always @(posedge clock) begin
-        if (reset) begin
-            inited <= 0;
-        end else if (enter) begin
-            inited <= 1;
-        end
-    end
+
 
     cpuclk clk_mod (
     .clk_in1 (clock),
-    .clk_out1(clk_23mhz),
+    .clk_out1(clk),
     .clk_out2(clk_10mhz)
     );
 
 
-    clk_module #(
-        .frequency(20_000_000)
-    ) clk_div (
-        .clk(clock),
-        .enable(1),
-        .clk_out(clk)
-    );
+    // clk_module #(
+    //     .frequency(3)
+    // ) clk_div (
+    //     .clk(clock),
+    //     .enable(1),
+    //     .clk_out(clk)
+    // );
         
     
     // UART Programmer Pinouts
@@ -126,6 +119,13 @@ module top (clock,
     always @(posedge clock) begin
         if (spg_bufg) upg_rst = 0;
         if (reset) upg_rst   = 1;
+    end
+    always @(posedge clock) begin
+        if (rst) begin
+            inited = 0;
+        end else if (enter) begin
+            inited = 1;
+        end
     end
     
     //used for other modules which don't relate to UART
@@ -302,9 +302,10 @@ module top (clock,
         .blink_need(blink_need),
         .seg_out(seg_out),
         .seg_en(seg_en),
-        .led_out(led_out),
+        .led_out(led),
         .blink_out(blink_out)
     );
     assign led[15:0] = led_out[15:0];
     assign led[16] = blink_out;
+    // assign led[7:0] = ;
 endmodule
