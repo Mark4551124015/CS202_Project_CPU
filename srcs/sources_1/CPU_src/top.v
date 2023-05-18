@@ -40,7 +40,7 @@ module top (clock,
     output tx;  // start Uart communicate at high level
     
     // Control and IO
-    wire upg_clk, upg_clk_o;
+    wire upg_clk_o;
     wire upg_wen_o;         //Uart write out enable
     wire upg_done_o;        //Uart rx data have done
     wire [14:0] upg_adr_o;  //data to which memory unit of program_rom/dmemory32
@@ -193,6 +193,27 @@ module top (clock,
         .last_is_load(last_is_load),
         .stall_req(stall_req_id)
     );
+
+    wire wb_we;
+    wire [31:0] wb_write_data;
+    wire [4:0]  wb_write_reg;
+
+    REGS regs(
+        .clk(clk),
+        .rst(rst),
+
+        .read_addr_1(id_read_addr_1),
+        .re_1(id_re_1),
+        .read_data_1(id_reg_1),
+
+        .read_addr_2(id_read_addr_2),
+        .re_2(id_re_2),
+        .read_data_2(id_reg_2),
+
+        .wb_we(wb_we),
+        .wb_write_reg(wb_write_reg),
+        .wb_write_data(wb_write_data)
+    ); 
     
     wire [5:0] id_exe_aluop;
     wire [31:0] id_exe_pc;
@@ -284,24 +305,95 @@ module top (clock,
         .stall(stall)
     );
     
+    wire ram_wb_we;
+    wire [4:0] ram_wb_write_reg;
+    wire [4:0] ram_wb_write_data;
+
     wire [31:0] ram_addr;
     wire [31:0] ram_write_data;
     wire ram_chip_enable;
-    wire ram_we;
     wire [31:0] ram_read_data;
+    wire ram_we;
 
     wire [31:0] io_addr;
     wire [31:0] io_write_data;
+    wire [31:0] io_read_data;
     wire io_we;
-    
 
-
-    
-
-
+    // MEM
     MEM mem(
+        .clk(clk),
+        .rst(rst),
+        .mem_pc(exe_mem_pc),
+        .we(exe_mem_we),
+        .write_reg(exe_mem_write_reg),
+        .write_data(exe_mem_write_data),
+        .mem_op(exe_mem_memop),
+        .mem_addr(exe_mem_memaddr),
+        .mem_data(exe_mem_memdata),
 
+        .wb_we(ram_wb_we),
+        .wb_write_reg(ram_wb_write_reg),
+        .wb_write_data(ram_wb_write_data),
+
+        .ram_addr(ram_addr),
+        .ram_write_data(ram_write_data),
+        .ram_chip_enable(ram_chip_enable),
+        .ram_read_data(ram_read_data),
+        .ram_we(ram_we),
+
+        .io_addr(io_addr),
+        .io_write_data(io_write_data),
+        .io_read_data(io_read_data)
     );
+
+    RAM ram(
+        .mem_addr(ram_addr),
+        .mem_write_data(ram_write_data),
+        .mem_we(ram_we),
+        .upg_rst_i(upg_rst),
+        .upg_clk_i(upg_clk_o),
+        .upg_wen_i(upg_wen_o),
+        .upg_adr_i(upg_adr_o),
+        .upg_dat_i(upg_dat_o),
+        .upg_done_i(upg_done_o),
+        .ram_read_data(ram_read_data)
+    );
+
+    wire [23:0] io_seg_data;
+    wire [15:0] io_led_data;
+    wire io_blink_data;
+    IO_module io(
+        .clk(clock),
+        .rst(rst),
+        .io_we(io_we),
+        .io_addr(io_addr),
+        .io_data(io_write_data),
+        .io_read_data(io_read_data),
+        .enterA(enterA),
+        .enterB(enterB),
+        .AB_input(switch[7:0]),
+        .TEST_input(switch[22:20]),
+        .IO_seg_out(io_seg_data),
+        .IO_blink_out(io_blink_data)
+    );
+
+    MEM_WB mem_wb(
+        .clk(clk),
+        .rst(rst),
+        .stall(stall),
+        .mem_write_reg(ram_wb_write_reg),
+        .mem_we(ram_wb_we),
+        .mem_write_data(ram_wb_write_data),
+        .wb_write_reg(wb_write_reg),
+        .wb_we(wb_we),
+        .wb_write_data(wb_write_data)
+    );
+    // WB
+    
+
+
+
     
     
     
@@ -319,9 +411,9 @@ module top (clock,
     
     displays disp(
     .clk(clock),
-    .data_display(seg_data),
-    .led_display(led_data),
-    .blink_need(blink_need),
+    .data_display(io_seg_data),
+    .led_display(io_led_data),
+    .blink_need(io_blink_data),
     .seg_out(seg_out),
     .seg_en(seg_en),
     .led_out(led),

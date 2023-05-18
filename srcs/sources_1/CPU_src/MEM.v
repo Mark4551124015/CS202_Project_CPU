@@ -38,7 +38,7 @@ module mem (
 
     output reg [31:0] ram_addr,
     output reg [31:0] ram_write_data,
-    output reg ram_chip_enbale,
+    output reg ram_chip_enable,
     output reg ram_we,
     input [31:0] ram_read_data
 ,
@@ -80,7 +80,7 @@ always @(*) begin
         ram_addr = `ZeroWord;
         ram_write_data = `ZeroWord;
         ram_we = 0;
-        ram_chip_enbale = 0;
+        ram_chip_enable = 0;
         io_addr = mem_addr;
         io_write_data = `ZeroWord;
         io_we = 0;
@@ -89,7 +89,7 @@ always @(*) begin
         ram_addr = mem_addr;
         ram_write_data = `ZeroWord;
         ram_we = 0;
-        ram_chip_enbale = 1;
+        ram_chip_enable = 1;
         io_addr = `ZeroWord;
         io_write_data = `ZeroWord;
         io_we = 0;
@@ -102,7 +102,7 @@ always @(*) begin
         ram_addr = `ZeroWord;
         ram_write_data = `ZeroWord;
         ram_we = 0;
-        ram_chip_enbale = 0;
+        ram_chip_enable = 0;
         io_addr = mem_addr;
         io_write_data = mem_data;
         io_we = 1;
@@ -111,7 +111,7 @@ always @(*) begin
         ram_addr = mem_addr;
         ram_write_data = mem_data;
         ram_we = 1;
-        ram_chip_enbale = 1;
+        ram_chip_enable = 1;
         io_addr = `ZeroWord;
         io_write_data = `ZeroWord;
         io_we = 0;
@@ -122,7 +122,7 @@ always @(*) begin
       ram_addr = `ZeroWord;
       ram_write_data = `ZeroWord;
       ram_we = 0;
-      ram_chip_enbale = 0;
+      ram_chip_enable = 0;
       io_addr = `ZeroWord;
       io_write_data = `ZeroWord;
       io_we = 0;

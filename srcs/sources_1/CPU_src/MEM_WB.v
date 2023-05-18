@@ -22,7 +22,7 @@
 
 `include "includes/defines.v"
 
-module mem_wb (
+module MEM_WB (
     input             clk,
     input             rst,
     input             stall,

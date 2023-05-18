@@ -21,7 +21,7 @@
 
 `include "includes/defines.v"
 
-module registers (
+module REGS (
     input clk,
     input rst,
 
