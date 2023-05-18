@@ -95,8 +95,6 @@ module Ifetc32 (
   always @(*) begin
     if (reset) begin
       Next_PC = `ZeroWord;
-    end else if (Jr) begin
-      Next_PC = Read_data_1;
     end else if ((Branch && Zero) || (nBranch && ~Zero)) begin
       Next_PC = Addr_result;
     end else if (PC < 16'd65535) begin
@@ -117,7 +115,11 @@ module Ifetc32 (
     end else begin
       if (Jmp || Jal) begin
         PC <= {4'b0000, Instruction[25:0], 2'b00};
-      end else PC <= Next_PC;
+      end else if (Jr) begin
+        PC <= Read_data_1;
+      end else begin 
+        PC <= Next_PC;
+      end
     end
   end
 
