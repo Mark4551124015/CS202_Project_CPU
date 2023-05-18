@@ -26,6 +26,7 @@ module ID (input clk,
            input rst,
            input [31:0] pc,
            input [31:0] inst,
+
            output reg [4:0] read_addr_1,
            output reg re_1,
            output reg [4:0] read_addr_2,
@@ -36,31 +37,34 @@ module ID (input clk,
            output reg [31:0] reg_1,
            output reg [31:0] reg_2,
            output reg [4:0] write_reg,
+
            output reg we,
            output [31:0] id_inst,             // pass inst
            input exe_we,
            input [4:0] exe_write_reg,
            input [31:0] exe_write_data,
+           
            input mem_we,
-           input [4:0] mem_write_addr,
+           input [4:0] mem_write_reg,
            input [31:0] mem_write_data,
            input [31:0] last_store_addr,
            input [31:0] last_store_data,
            input [31:0] exe_load_addr,
+
            output reg branch_flag,
            output reg [31:0] branch_addr,
            output reg [31:0] link_addr,
            input last_is_load,
            output stall_req);
     
-    wire [5:0] opcode;
-    wire [4:0] rs;
-    wire [4:0] rt;
-    wire [4:0] rd;
-    wire [4:0] shamt;
-    wire [5:0] funct;
+    wire[5:0] opcode            = inst[31:26];
+    wire[4:0] rs            = inst[25:21];
+    wire[4:0] rt            = inst[20:16];
+    wire[4:0] rd            = inst[15:11];
+    wire[4:0] shamt         = inst[10:6];
+    wire[5:0] funct          = inst[5:0];
     // I-Type
-    wire [15:0] imm;
+    wire [15:0] imm = inst[15:0];
     // J-type
     wire [25:0] inst_index = inst[25:0];
     // Extend Imme
@@ -77,7 +81,7 @@ module ID (input clk,
     
     assign next_pc = pc + 4;
     assign stall_req = stall_req_reg1 | stall_req_reg2;
-    
+    assign id_inst = inst;
     // Decoding
     always @(*) begin
         if (rst) begin
@@ -492,7 +496,7 @@ module ID (input clk,
         end
       end else if (re_1 && exe_we && exe_write_reg == read_addr_1) begin // EXE-EXE Forwarding
         reg_1 = exe_write_data;
-      end else if (re_1 && mem_we && mem_write_addr == read_addr_1) begin // MEM-EXE Forwarding
+      end else if (re_1 && mem_we && mem_write_reg == read_addr_1) begin // MEM-EXE Forwarding
         reg_1 = mem_write_data;
       end
       else if (re_1) begin
@@ -518,7 +522,7 @@ module ID (input clk,
         end
       end else if (re_2 && exe_we && exe_write_reg == read_addr_2) begin // EXE-EXE Forwarding
         reg_2 = exe_write_data;
-      end else if (re_2 && mem_we && mem_write_addr == read_addr_2) begin // MEM-EXE Forwarding
+      end else if (re_2 && mem_we && mem_write_reg == read_addr_2) begin // MEM-EXE Forwarding
         reg_2 = mem_write_data;
       end
       else if (re_2) begin

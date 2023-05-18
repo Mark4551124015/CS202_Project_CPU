@@ -27,7 +27,7 @@ module displays (
     input blink_need,  // need_blink
     output reg [7:0] seg_en,  // Rnables of eight seven segment digital tubes
     output [7:0] seg_out,  // Outputs
-    output [24:0] led_out,
+    output [23:0] led_out,
     output blink_out
 );
   reg [3:0] num0, num1, num2, num3, num4, num5, num6, num7;  // num6 is MSB

@@ -25,7 +25,7 @@
 module MEM_WB (
     input             clk,
     input             rst,
-    input             stall,
+    // input             stall,
     //来自mem阶段的信息	
     input wire [ 4:0] mem_write_reg,
     input wire        mem_we,

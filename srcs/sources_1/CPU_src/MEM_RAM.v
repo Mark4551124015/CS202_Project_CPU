@@ -1,8 +1,10 @@
 `include "includes/defines.v"
 
 module MEM_RAM (
+    input clk,
     input [31:0] mem_addr,
     input [31:0] mem_write_data,
+    input chip_enable,
     input mem_we,
     input upg_rst_i,  // UPG reset (Active High)
     input upg_clk_i,  // UPG ram_clk_i (10MHz)
@@ -21,7 +23,7 @@ module MEM_RAM (
   reg [31:0] IO_out;    // 32bit leds
   wire upg_wen = upg_wen_i & upg_adr_i[14];
   wire [31:0] readData_tmp;
-  assign readData = kickOff ? readData_tmp : `ZeroWord;
+  assign ram_read_data = (kickOff && chip_enable) ? readData_tmp : `ZeroWord;
 
   RAM MEM (
       .clka (kickOff ? clk : upg_clk_i),

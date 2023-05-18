@@ -17,9 +17,9 @@ module CTRL (
 
     always @(*) begin
         if (rst) begin
-            inited = 0;
+            inited <= 0;
         end else if (enter) begin
-            inited = 1;
+            inited <= 1;
         end
     end
 

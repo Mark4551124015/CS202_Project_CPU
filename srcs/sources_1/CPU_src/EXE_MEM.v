@@ -28,7 +28,7 @@ module EXE_MEM (
 
     // From EXE
     input [31:0] exe_pc,
-    input [31:0] exe_we,
+    input exe_we,
     input [4:0] exe_write_reg,
     input [31:0] exe_write_data,
     

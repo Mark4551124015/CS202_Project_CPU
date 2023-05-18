@@ -30,6 +30,7 @@ module IF (input clk,
             input [14:0] upg_adr_i,     // UPG write address
             input [31:0] upg_dat_i,     // UPG write data
             input upg_done_i,
+            input ce,
             output reg [31:0] Instruction); // 1 if program finished
     
     
@@ -42,14 +43,14 @@ module IF (input clk,
     wire upg_wen = upg_wen_i & ~upg_adr_i[14];
     
     prgrom instmem (
-    .clka (kickOff ? clock : upg_clk_i),
+    .clka (kickOff ? clk : upg_clk_i),
     .wea  (kickOff ? 1'b0 : upg_wen),
     .addra(kickOff ? pc[15:2] : upg_adr_i[13:0]),
     .dina (kickOff ? `ZeroWord : upg_dat_i),
     .douta(Instruction_read)
     );
     always @(*) begin
-        if (kickOff)  Instruction = Instruction_read;
+        if (kickOff && ce)  Instruction = Instruction_read;
         else Instruction          = `ZeroWord;
     end
     
