@@ -30,9 +30,12 @@ module displays (
     output [23:0] led_out,
     output blink_out
 );
-  reg [3:0] num0, num1, num2, num3, num4, num5, num6, num7;  // num6 is MSB
-  reg  [3:0] current_num;
-  reg  [7:0] seg_state;
+
+  reg [3:0] num0, num1, num2, num3, num4, num5, num6, num7,ne;  // num6 is MSB
+  reg [23:0] positive;
+  reg [3:0] current_num;
+  reg [7:0] seg_state;
+
   wire [7:0] seg_out_tmp;
   assign seg_out = ~seg_out_tmp;
   wire clk_1000hz, clk_3hz;
@@ -67,14 +70,29 @@ module displays (
   end
 
   always @(posedge clk) begin
-    num7   <= data_display / 1_000_000_0 % 10;
-    num6   <= data_display / 1_000_000 % 10;
-    num5   <= data_display / 1_000_00 % 10;
-    num4   <= data_display / 1_000_0 % 10;
-    num3   <= data_display / 1_000 % 10;
-    num2   <= data_display / 1_00 % 10;
-    num1   <= data_display / 1_0 % 10;
-    num0   <= data_display % 10;
+
+    ne <= data_display / 1_000_000_0 % 10;
+    if(ne>0)begin
+        positive = 24'b0-data_display;
+        num7 <= 4'b1111;
+        num6 <= positive / 1_000_000 % 10;
+        num5 <= positive / 1_000_00 % 10;
+        num4 <= positive / 1_000_0 % 10;
+        num3 <= positive / 1_000 % 10;
+        num2 <= positive / 1_00 % 10;
+        num1 <= positive / 1_0 % 10;
+        num0 <= positive % 10;
+    end else begin
+        num7 <= data_display / 1_000_000_0 % 10;
+        num6 <= data_display / 1_000_000 % 10;
+        num5 <= data_display / 1_000_00 % 10;
+        num4 <= data_display / 1_000_0 % 10;
+        num3 <= data_display / 1_000 % 10;
+        num2 <= data_display / 1_00 % 10;
+        num1 <= data_display / 1_0 % 10;
+        num0 <= data_display % 10;
+    end
+    
     seg_en <= ~seg_state;
     case (seg_state)
       8'b1000_0000: current_num <= num7;
