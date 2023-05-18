@@ -46,7 +46,7 @@ module EXE (
   assign this_load = (aluop == `EXE_LB_OP) | (aluop == `EXE_LW_OP);
 
   always @(*) begin
-    if (rst == `RstEnable) begin
+    if (rst) begin
       wb_write_data = `ZeroWord;
       wb_write_reg = `NOPRegAddr;
       wb_we = 0;

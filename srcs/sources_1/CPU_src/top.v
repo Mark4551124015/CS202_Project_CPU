@@ -112,31 +112,29 @@ module top (clock,
     wire [31:0] if_inst;
     
     IF ifetch(
-    .clk(clk),
-    .rst(rst),
-    .pc(pc_reg_pc),
-    .upg_rst_i(upg_rst),
-    .upg_clk_i(upg_clk_o),
-    .upg_wen_i(upg_wen_o),
-    .upg_adr_i(upg_adr_o),
-    .upg_wen_i(upg_wen_o),
-    .upg_done_i(upg_done_o),
-    .Instruction(if_inst)
+        .clk(clk),
+        .rst(rst),
+        .pc(pc_reg_pc),
+        .upg_rst_i(upg_rst),
+        .upg_clk_i(upg_clk_o),
+        .upg_wen_i(upg_wen_o),
+        .upg_adr_i(upg_adr_o),
+        .upg_wen_i(upg_wen_o),
+        .upg_done_i(upg_done_o),
+        .Instruction(if_inst)
     );
     
     wire [31:0] if_id_pc;
     wire [31:0] if_id_inst;
     
-    
-    
     IF_ID if_id(
-    .clk(clk),
-    .rst(rst),
-    .if_pc(pc_reg_o),
-    .if_inst(if_inst),
-    .id_pc(if_id_pc),
-    .id_inst(if_id_inst),
-    .stall(stall_req_id)
+        .clk(clk),
+        .rst(rst),
+        .if_pc(pc_reg_o),
+        .if_inst(if_inst),
+        .id_pc(if_id_pc),
+        .id_inst(if_id_inst),
+        .stall(stall_req_id)
     );
     
     wire [31:0] id_read_addr_1;
@@ -156,46 +154,46 @@ module top (clock,
     wire exe_we;
     wire [4:0] exe_write_reg;
     wire [31:0] exe_write_data;
-
+    
     wire mem_we;
     wire [4:0] mem_write_reg;
     wire [31:0] mem_write_data;
-
+    
     wire last_is_load;
     wire [31:0] last_store_addr;
     wire [31:0] last_store_data;
     wire [31:0] exe_load_addr;
     // IDecoder
     ID idecoder(
-    .clk(clk),
-    .rst(rst),
-    .pc(if_id_pc),
-    .inst(if_id_inst),
-    .read_addr_1(id_read_addr_1),
-    .re_1(id_re_1),
-    .read_addr_2(id_read_addr_2),
-    .re_2(id_re_2),
-    .read_data_1(id_reg_1),
-    .read_data_2(id_reg_2),
-    .write_reg(id_write_reg),
-    .we(id_we),
-    .id_inst(id_inst),
-    .exe_we(exe_wwe),
-    .exe_write_reg(exe_write_reg),
-    .exe_write_data(exe_write_data),
-    .mem_we(mem_we),
-    .mem_write_reg(mem_write_reg),
-    .mem_write_data(mem_write_data),
-    .last_store_addr(last_store_addr),
-    .last_store_data(last_store_data),
-    .exe_load_addr(exe_load_addr),
-    .branch_flag(id_branch_flag),
-    .branch_addr(id_branch_addr),
-    .link_addr(id_link_addr),
-    .last_is_load(last_is_load),
-    .stall_req(stall_req_id)
+        .clk(clk),
+        .rst(rst),
+        .pc(if_id_pc),
+        .inst(if_id_inst),
+        .read_addr_1(id_read_addr_1),
+        .re_1(id_re_1),
+        .read_addr_2(id_read_addr_2),
+        .re_2(id_re_2),
+        .read_data_1(id_reg_1),
+        .read_data_2(id_reg_2),
+        .write_reg(id_write_reg),
+        .we(id_we),
+        .id_inst(id_inst),
+        .exe_we(exe_wwe),
+        .exe_write_reg(exe_write_reg),
+        .exe_write_data(exe_write_data),
+        .mem_we(mem_we),
+        .mem_write_reg(mem_write_reg),
+        .mem_write_data(mem_write_data),
+        .last_store_addr(last_store_addr),
+        .last_store_data(last_store_data),
+        .exe_load_addr(exe_load_addr),
+        .branch_flag(id_branch_flag),
+        .branch_addr(id_branch_addr),
+        .link_addr(id_link_addr),
+        .last_is_load(last_is_load),
+        .stall_req(stall_req_id)
     );
-
+    
     wire [5:0] id_exe_aluop;
     wire [31:0] id_exe_pc;
     wire [31:0] id_exe_inst;
@@ -204,7 +202,7 @@ module top (clock,
     wire [4:0] id_exe_write_reg;
     wire id_exe_we;
     wire [31:0] id_exe_link_addr;
-
+    
     ID_EXE id_exe(
         .clk(clk),
         .rst(rst),
@@ -215,7 +213,7 @@ module top (clock,
         .id_reg_2(id_reg_2),
         .id_write_reg(id_write_reg),
         .id_we(id_we),
-
+        
         .exe_aluop(id_exe_aluop),
         .exe_pc(id_exe_pc),
         .exe_inst(id_exe_inst),
@@ -227,12 +225,91 @@ module top (clock,
         .exe_link_addr(id_exe_link_addr),
         .stall(stall)
     );
+    
+    wire [3:0] exe_memop;       // Exe to exe_mem
+    wire [31:0] exe_memaddr;
+    wire [31:0] exe_memdata;
+    
+    EXE exe(
+        .rst(rst),
+        .aluup(id_exe_aluop),
+        .reg_1(id_exe_reg_1),
+        .reg_2(id_exe_reg_2),
+        .write_reg(id_exe_write_reg),
+        .we(id_exe_we),
+        .inst(id_exe_inst),
+        .pc(id_exe_pc),
+        .link_addr(id_exe_link_addr),
+        .mem_op(exe_memop),
+        .mem_addr(exe_memaddr),
+        .mem_data(exe_memdata),
+        .this_load(last_is_load),
+        .wb_write_reg(exe_write_reg),
+        .wb_write_data(exe_write_data),
+        .wb_we(exe_we)
+    );
+    
+    wire [31:0] exe_mem_pc;
+    wire [3:0] exe_mem_memop;
+    wire [31:0] exe_mem_memaddr;
+    wire [31:0] exe_mem_memdata;
+    wire exe_mem_we;
+    wire [4:0] exe_mem_write_reg;
+    wire [31:0] exe_mem_write_data;
+    
+    EXE_MEM exe_mem(
+        .clk(clk),
+        .rst(rst),
+        
+        .exe_pc(id_exe_pc),
+        .exe_we(exe_we),
+        .exe_write_reg(exe_write_reg),
+        .exe_write_data(exe_write_data),
+        
+        .exe_mem_op(exe_memop),
+        .exe_mem_addr(exe_memaddr),
+        .exe_mem_data(exe_memdata),
+        
+        .mem_pc(exe_mem_pc),
+        .mem_mem_op(exe_mem_memop),
+        .mem_mem_addr(exe_mem_memaddr),
+        .mem_mem_data(exe_mem_memdata),
+        
+        .mem_we(exe_mem_we),
+        .mem_write_reg(exe_mem_write_reg),
+        .mem_write_data(exe_mem_write_data),
+        
+        .last_store_addr(last_store_addr),
+        .last_store_data(last_store_data),
+        .stall(stall)
+    );
+    
+    wire [31:0] ram_addr;
+    wire [31:0] ram_write_data;
+    wire ram_chip_enable;
+    wire ram_we;
+    wire [31:0] ram_read_data;
+
+    wire [31:0] io_addr;
+    wire [31:0] io_write_data;
+    wire io_we;
+    
 
 
+    
 
 
+    MEM mem(
 
-
+    );
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
@@ -250,5 +327,7 @@ module top (clock,
     .led_out(led),
     .blink_out(blink_out)
     );
+    
+    
     
 endmodule
