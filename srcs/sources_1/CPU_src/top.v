@@ -209,17 +209,26 @@ module top (clock,
         .clk(clk),
         .rst(rst),
         .id_pc(if_id_pc),
-        .id_inst(if_id_inst),        
         .id_aluop(id_aluop),
         .id_inst(id_inst),
         .id_reg_1(id_reg_1),
-        
+        .id_reg_2(id_reg_2),
         .id_write_reg(id_write_reg),
         .id_we(id_we),
-        
-        
-        
-);
+
+        .exe_aluop(id_exe_aluop),
+        .exe_pc(id_exe_pc),
+        .exe_inst(id_exe_inst),
+        .exe_reg_1(id_exe_reg_1),
+        .exe_reg_2(id_exe_reg_2),
+        .exe_write_reg(id_exe_write_reg),
+        .exe_we(id_exe_we),
+        .id_link_addr(id_link_addr),
+        .exe_link_addr(id_exe_link_addr),
+        .stall(stall)
+    );
+
+
 
 
 
