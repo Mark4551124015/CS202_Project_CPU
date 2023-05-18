@@ -107,7 +107,8 @@
 
 /*定义常用的常量*/
 
-`define     PC_START_ADDR   32'h80000000    // PC起始地址
+`define     PC_START_ADDR   32'h00000000    // PC起始地址
+`define     SP_START_ADDR   32'h00010000    // PC起始地址
 `define     IO_MEM          22'h3FFFFF      //IO所用的内存空间
 `define     IO_TEST_ADDR    32'hFFFFFC00
 `define     IO_A_ADDR       32'hFFFFFC04
