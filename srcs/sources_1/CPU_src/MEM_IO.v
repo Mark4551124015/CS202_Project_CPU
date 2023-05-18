@@ -21,7 +21,7 @@
 
 `include "includes/defines.v"
 
-module IO_module (
+module MEM_IO (
   input clk,
   input rst,
   input io_we,

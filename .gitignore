@@ -3,3 +3,4 @@ CPU submodel/
 *.jou
 *.log
 tmp/
+project_pipeline/

@@ -21,7 +21,7 @@
 
 `include "includes/defines.v"
 
-module mem (
+module MEM (
     input clk,
     input rst,
     input [31:0] mem_pc,

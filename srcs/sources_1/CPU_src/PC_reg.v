@@ -21,7 +21,7 @@
 
 `include "includes/defines.v"
 
-module pc_reg (input clk,
+module PC_reg (input clk,
     input rst,
     input branch_flag,
     input [31:0] branch_addr,

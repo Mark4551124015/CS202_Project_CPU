@@ -22,7 +22,7 @@
 
 `include "includes/defines.v"
 
-module id_exe (
+module EXE_MEM (
     input clk,
     input rst,
 

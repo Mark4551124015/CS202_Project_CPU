@@ -39,7 +39,7 @@ if { [info exists ::origin_dir_loc] } {
 }
 
 # Set the project name
-set project_name "project"
+set project_name "project_pipeline"
 
 # Use project name variable, if specified in the tcl shell
 if { [info exists ::user_project_name] } {
@@ -130,12 +130,19 @@ set obj [get_filesets sources_1]
 # <=============HERE IS SOURCE===============> \\Marker//
 set files [list \
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/top.v"]"\
- "[file normalize "$origin_dir/srcs/sources_1/CPU_src/ALU.v"]"\
- "[file normalize "$origin_dir/srcs/sources_1/CPU_src/Controller.v"]"\
- "[file normalize "$origin_dir/srcs/sources_1/CPU_src/Decoder.v"]"\
- "[file normalize "$origin_dir/srcs/sources_1/CPU_src/IFetch.v"]"\
- "[file normalize "$origin_dir/srcs/sources_1/CPU_src/IO.v"]"\
- "[file normalize "$origin_dir/srcs/sources_1/CPU_src/Dmem32.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/CTRL.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/PC_reg.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/IF.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/IF_ID.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/ID.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/ID_EXE.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/EXE.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/EXE_MEM.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/MEM.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/MEM_WB.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/MEM_RAM.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/MEM_IO.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/REGS.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/modules/clk_module.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/modules/displays.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/modules/n2s.v"]"\

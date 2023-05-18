@@ -1,6 +1,6 @@
 `include "includes/defines.v"
 
-module RAM (
+module MEM_RAM (
     input [31:0] mem_addr,
     input [31:0] mem_write_data,
     input mem_we,

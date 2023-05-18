@@ -88,7 +88,7 @@ module top (clock,
     
     wire stall;
     wire stall_req_if, stall_req_id, stall_req_io;
-    CRTL crtl(
+    CTRL ctrl(
     .rst(rst),
     .enter(enter),
     .stall_req_id(stall_req_id),
@@ -347,7 +347,7 @@ module top (clock,
         .io_read_data(io_read_data)
     );
 
-    RAM ram(
+    MEM_RAM mem_ram(
         .mem_addr(ram_addr),
         .mem_write_data(ram_write_data),
         .mem_we(ram_we),
@@ -363,7 +363,7 @@ module top (clock,
     wire [23:0] io_seg_data;
     wire [15:0] io_led_data;
     wire io_blink_data;
-    IO_module io(
+    MEM_IO mem_io(
         .clk(clock),
         .rst(rst),
         .io_we(io_we),
