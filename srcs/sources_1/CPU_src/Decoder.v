@@ -82,31 +82,29 @@ module decode32 (
   assign Read_data_1 = register[rs];
   assign Read_data_2 = register[rt];
   integer i;
-  
+
   initial begin
     for (i = 0; i < 32; i = i + 1) register[i] = 0;
-    register[29] = `SP_START_ADDR;      // Init sp register 
-  end
-  always @(*) begin
-      if (Jal) write_register_address = 5'b11111;
-      else write_register_address = RegDst ? rd : rt;
+    register[29] = `SP_START_ADDR;  // Init sp register 
   end
 
-  always @(*) begin
+
+  always @(posedge clock) begin
+    
+    if (Jal) write_register_address = 5'b11111;
+    else write_register_address = RegDst ? rd : rt;
+    
     if (Jal) write_data = opcplus4;
     else if (!MemorIOtoReg) write_data = ALU_result;
     else if (MemorIOtoReg) begin
-        write_data = mem_data;
+      write_data = mem_data;
     end
 
-  end
-
-  always @(posedge clock) begin
     if (reset) begin
       for (i = 0; i < 32; i = i + 1) register[i] = 0;
-      register[29] = `SP_START_ADDR;      // Init sp register 
-    end else if (RegWrite && write_register_address != 0 ) begin
-      register[write_register_address] <= write_data;
+      register[29] = `SP_START_ADDR;  // Init sp register 
+    end else if (RegWrite && write_register_address != 0) begin
+      register[write_register_address] = write_data;
     end
   end
 

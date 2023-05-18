@@ -125,8 +125,8 @@ module Ifetc32 (
 
 
 
-  always @(posedge Jmp, posedge Jal, posedge reset) begin
+  always @(posedge Jal, posedge reset) begin
     if (reset) link_addr = `ZeroWord;
-    else if (Jmp || Jal) link_addr = branch_base_addr;
+    else if (Jal) link_addr = branch_base_addr;
   end
 endmodule
