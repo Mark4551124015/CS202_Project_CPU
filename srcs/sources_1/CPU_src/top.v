@@ -39,94 +39,41 @@ module top (clock,
     input rx;
     output tx;  // start Uart communicate at high level
     
-    wire enter,enterA,enterB,start_pg;
-    wire rst;
-    wire clk;
-    wire clk_10mhz;
-    reg inited;
-
-    initial begin
-        inited <= 0;
-    end
-
-
-    cpuclk clk_mod (
-    .clk_in1 (clock),
-    .clk_out1(clk),
-    .clk_out2(clk_10mhz)
-    );
-
-
-    // clk_module #(
-    //     .frequency(3)
-    // ) clk_div (
-    //     .clk(clock),
-    //     .enable(1),
-    //     .clk_out(clk)
-    // );
-        
-    
-    // UART Programmer Pinouts
+    // Control and IO
     wire upg_clk, upg_clk_o;
     wire upg_wen_o;         //Uart write out enable
     wire upg_done_o;        //Uart rx data have done
     wire [14:0] upg_adr_o;  //data to which memory unit of program_rom/dmemory32
     wire [31:0] upg_dat_o;  //data to program_rom or dmemory32
-    wire spg_bufg;
-    wire [31:0] switch_out = switch;
     wire blink_out;
+    wire [31:0] switch_out = switch;
     wire [15:0] led_out;
-
+    wire enter,enterA,enterB,start_pg;
+    wire rst;
+    wire clk;
+    wire inited;
     
-    
-    // Button and switches up,mid,down,left,right
-    // BUFG U1 (
-    // .I(button[4]),
-    // .O(enter)
-    // );
-    TW U2 (
-    .clk(clock),
-    .I(button[3]),
-    .O(enter)
+    //Clock
+    cpuclk clk_mod (
+    .clk_in1 (clock),
+    .clk_out1(clk),
+    .clk_out2(clk_10mhz)
     );
-    TW U3 (
-    .clk(clock),
-    .I(button[2]),
-    .O(start_pg)
-    );
-    TW U4 (
-    .clk(clock),
-    .I(button[1]),
-    .O(enterA)
-    );
-    TW U5 (
-    .clk(clock),
-    .I(button[0]),
-    .O(enterB)
-    );
-    
-
-
-    assign spg_bufg = start_pg;
     
     reg upg_rst;
     always @(posedge clock) begin
-        if (spg_bufg) upg_rst = 0;
-        if (reset) upg_rst   = 1;
-    end
-    always @(posedge clock) begin
-        if (rst) begin
-            inited = 0;
-        end else if (enter) begin
-            inited = 1;
-        end
+        if (start_pg) upg_rst = 0;
+        if (reset) upg_rst    = 1;
     end
     
     //used for other modules which don't relate to UART
     assign rst = reset | !upg_rst;
-
-
-
+    
+    TW U2 (.clk(clock),.I(button[3]),.O(enter));
+    TW U3 (.clk(clock),.I(button[2]),.O(start_pg));
+    TW U4 (.clk(clock),.I(button[1]),.O(enterA));
+    TW U5 (.clk(clock),.I(button[0]),.O(enterB));
+    
     uart UART (
     .upg_clk_i(clk_10mhz),
     .upg_rst_i(upg_rst),
@@ -138,166 +85,161 @@ module top (clock,
     .upg_dat_o(upg_dat_o),
     .upg_adr_o(upg_adr_o)
     );
-
-
-    //CPU:
-    wire [31:0] Addr_result;             // 从ALU计算出的地址
-    wire        Zero;                    // 1-ALU Reuslt = 0
-    wire [31:0] Read_A;                  // 读数�????1 / jr指令�????使用的指令地�????
-    wire Branch, nBranch, Jmp, Jal, Jr;  // 控制信号 beq,bne,j,jal,jr
-    wire [31:0] Instruction;       // 指令
-    wire [31:0] branch_base_addr;  // PC + 4 分支指令使用，多跳一�????
-    wire [31:0] link_addr;         // jal 指令使用�???? $32 寄存器保存的跳转回来的指�????
-    wire [31:0] pco;               // PC 正常使用的下�????个地�????
-    wire RegDST, MemorIOtoReg, RegWrite, MemWrite;
-    wire ALUSrc, I_format, Sftmd;
-    wire [1:0] ALUOp;
-    wire [31:0] MemReadData;
-    wire [31:0] MemorIO_Result;
-    wire MemRead, IORead, IOWrite;
-    wire [5:0] opcode;
-    wire [4:0] Shamt;
-    wire [5:0] Function_opcode;
-    wire [31:0] ALU_result;  // ALU 计算结果
-    wire [31:0] Read_data_1;  // 读数1
-    wire [31:0] Read_data_2;  // 读数2
-    wire [31:0] Imme_extend;  // 立即(符号拓展)
-    wire [31:0] r_wdata;
-    wire [23:0] seg_data;
-    wire [23:0] led_data;
-    wire blink_need;
-    assign opcode          = Instruction[31:26];
-    assign Shamt           = Instruction[10:6];
-    assign Function_opcode = Instruction[5:0];
     
+    wire stall;
+    wire stall_req_if, stall_req_id, stall_req_io;
+    CRTL crtl(
+    .rst(rst),
+    .enter(enter),
+    .stall_req_id(stall_req_id),
+    .stall_req_if(stall_req_if),
+    .stall_req_io(stall_req_io));
     
-    Ifetc32 if3 (
-    .Instruction(Instruction),
-    .branch_base_addr(branch_base_addr),
-    .Addr_result(Addr_result),
-    .Read_data_1(Read_data_1),
-    .Branch(Branch),
-    .nBranch(nBranch),
-    .Jmp(Jmp),
-    .Jal(Jal),
-    .Jr(Jr),
-    .Zero(Zero),
-    .clock(clk),
-    .reset(rst),
-    .link_addr(link_addr),
-    .upg_rst_i(upg_rst),       // UPG reset (Active High)
-    .upg_clk_i(upg_clk_o),     // UPG clock (10MHz)
-    .upg_wen_i(upg_wen_o),     // UPG write enable
-    .upg_adr_i(upg_adr_o),     // UPG write address
-    .upg_dat_i(upg_dat_o),     // UPG write data
-    .upg_done_i(upg_done_o),    // 1 if program finished
-    .inited(inited)
+    wire [31:0] pc_reg_pc;
+    wire branch_flag;
+    wire [31:0] branch_addr;
+    wire pc_chip_enable;
+    // pc and IF
+    PC_reg pc_reg(
+    .rst(rst),
+    .branch_flag(branch_flag),
+    .branch_addr(branch_addr),
+    .stall(stall),
+    .pc(pc_reg_pc),
+    .chip_enable(pc_chip_enable)
     );
     
+    wire [31:0] if_inst;
     
-    
-    
-    control32 ctrl32 (
-    .opcode(opcode),
-    .Function_opcode(Function_opcode),
-    .Jr(Jr),
-    .RegDST(RegDST),
-    .ALUSrc(ALUSrc),
-    .MemorIOtoReg(MemorIOtoReg),
-    .RegWrite(RegWrite),
-    .MemWrite(MemWrite),
-    .Branch(Branch),
-    .nBranch(nBranch),
-    .Jmp(Jmp),
-    .Jal(Jal),
-    .I_format(I_format),
-    .Sftmd(Sftmd),
-    .ALUOp(ALUOp),
-    .Alu_resultHigh(ALU_result[31:10]),
-    .IORead(IORead),
-    .IOWrite(IOWrite),
-    .inited(inited)
+    IF ifetch(
+    .clk(clk),
+    .rst(rst),
+    .pc(pc_reg_pc),
+    .upg_rst_i(upg_rst),
+    .upg_clk_i(upg_clk_o),
+    .upg_wen_i(upg_wen_o),
+    .upg_adr_i(upg_adr_o),
+    .upg_wen_i(upg_wen_o),
+    .upg_done_i(upg_done_o),
+    .Instruction(if_inst)
     );
     
+    wire [31:0] if_id_pc;
+    wire [31:0] if_id_inst;
+    
+    
+    
+    IF_ID if_id(
+    .clk(clk),
+    .rst(rst),
+    .if_pc(pc_reg_o),
+    .if_inst(if_inst),
+    .id_pc(if_id_pc),
+    .id_inst(if_id_inst),
+    .stall(stall_req_id)
+    );
+    
+    wire [31:0] id_read_addr_1;
+    wire [31:0] id_read_addr_2;
+    wire id_re_1, id_re_2;
+    wire [5:0] id_aluop;
+    wire [31:0] id_reg_1;
+    wire [31:0] id_reg_2;
+    wire [4:0] id_write_reg;
+    wire id_we;
+    wire [31:0] id_inst;
+    wire id_branch_flag;
+    wire [31:0] id_branch_addr;
+    wire [31:0] id_link_addr;
+    
+    // Forwarding
+    wire exe_we;
+    wire [4:0] exe_write_reg;
+    wire [31:0] exe_write_data;
 
-    decode32 u3 (
-    .Read_data_1(Read_data_1),
-    .Read_data_2(Read_data_2),
-    .Instruction(Instruction),
-    .mem_data(MemorIO_Result),
-    .ALU_result(ALU_result),
-    .Jal(Jal),
-    .RegWrite(RegWrite),
-    .MemorIOtoReg(MemorIOtoReg),
-    .RegDst(RegDST),
-    .Sign_extend(Imme_extend),
-    .clock(clk),
-    .reset(rst),
-    .opcplus4(link_addr)
-    );
-    
-    // ALU
-    executs32 Uexe (
-    .Read_data_1(Read_data_1),
-    .Read_data_2(Read_data_2),
-    .Sign_extend(Imme_extend),
-    .Function_opcode(Function_opcode),
-    .opcode(opcode),
-    .ALUOp(ALUOp),
-    .Shamt(Shamt),
-    .ALUSrc(ALUSrc),
-    .I_format(I_format),
-    .Zero(Zero),
-    .Sftmd(Sftmd),
-    .ALU_result(ALU_result),
-    .Addr_result(Addr_result),
-    .PC_plus_4(branch_base_addr),
-    .Jr(Jr)
-    );
-    
-    IO_module MemORIO(
-    .IO_input(switch_out[7:0]),
-    .IO_seg_out(seg_data),
-    .IO_led_out(led_data),
-    .IO_blink_out(blink_need),
-    .TEST_input(switch_out[22:20]),
-    .IORead(IORead),
-    .IOWrite(IOWrite),
-    .ALU_result(ALU_result),
-    .Read_data_2(Read_data_2),
-    .MemReadData(MemReadData),
-    .MemorIO_Result(MemorIO_Result),
-    .enterA(enterA),
-    .enterB(enterB),
-    .clk(clk)
+    wire mem_we;
+    wire [4:0] mem_write_reg;
+    wire [31:0] mem_write_data;
+
+    wire last_is_load;
+    wire [31:0] last_store_addr;
+    wire [31:0] last_store_data;
+    wire [31:0] exe_load_addr;
+    // IDecoder
+    ID idecoder(
+    .clk(clk),
+    .rst(rst),
+    .pc(if_id_pc),
+    .inst(if_id_inst),
+    .read_addr_1(id_read_addr_1),
+    .re_1(id_re_1),
+    .read_addr_2(id_read_addr_2),
+    .re_2(id_re_2),
+    .read_data_1(id_reg_1),
+    .read_data_2(id_reg_2),
+    .write_reg(id_write_reg),
+    .we(id_we),
+    .id_inst(id_inst),
+    .exe_we(exe_wwe),
+    .exe_write_reg(exe_write_reg),
+    .exe_write_data(exe_write_data),
+    .mem_we(mem_we),
+    .mem_write_reg(mem_write_reg),
+    .mem_write_data(mem_write_data),
+    .last_store_addr(last_store_addr),
+    .last_store_data(last_store_data),
+    .exe_load_addr(exe_load_addr),
+    .branch_flag(id_branch_flag),
+    .branch_addr(id_branch_addr),
+    .link_addr(id_link_addr),
+    .last_is_load(last_is_load),
+    .stall_req(stall_req_id)
     );
 
-    
-    dmemory32 uram (
-    .clock(clk),
-    .memWrite(MemWrite),
-    .address(ALU_result),
-    .writeData(Read_data_2),
-    .readData(MemReadData),
-    .upg_rst_i(upg_rst),       // UPG reset (Active High)
-    .upg_clk_i(upg_clk_o),     // UPG clock (10MHz)
-    .upg_wen_i(upg_wen_o),     // UPG write enable
-    .upg_dat_i(upg_dat_o),     // UPG write address
-    .upg_adr_i(upg_adr_o),     // UPG write data
-    .upg_done_i(upg_done_o)    // 1 if program finished
-    );
-    
+    wire [5:0] id_exe_aluop;
+    wire [31:0] id_exe_pc;
+    wire [31:0] id_exe_inst;
+    wire [31:0] id_exe_reg_1;
+    wire [31:0] id_exe_reg_2;
+    wire [4:0] id_exe_write_reg;
+    wire id_exe_we;
+    wire [31:0] id_exe_link_addr;
+
+    ID_EXE id_exe(
+        .clk(clk),
+        .rst(rst),
+        .id_pc(if_id_pc),
+        .id_inst(if_id_inst),        
+        .id_aluop(id_aluop),
+        .id_inst(id_inst),
+        .id_reg_1(id_reg_1),
+        
+        .id_write_reg(id_write_reg),
+        .id_we(id_we),
+        
+        
+        
+);
 
 
+
+
+    
+    
+    
+    
+    
+    
+    
     displays disp(
-        .clk(clock),
-        .data_display(seg_data),
-        .led_display(led_data),
-        .blink_need(blink_need),
-        .seg_out(seg_out),
-        .seg_en(seg_en),
-        .led_out(led),
-        .blink_out(blink_out)
+    .clk(clock),
+    .data_display(seg_data),
+    .led_display(led_data),
+    .blink_need(blink_need),
+    .seg_out(seg_out),
+    .seg_en(seg_en),
+    .led_out(led),
+    .blink_out(blink_out)
     );
     
 endmodule

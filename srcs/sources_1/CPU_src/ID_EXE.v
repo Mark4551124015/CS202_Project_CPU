@@ -22,7 +22,7 @@
 
 `include "includes/defines.v"
 
-module id_exe (
+module ID_EXE (
     input clk,
     input rst,
 
@@ -45,7 +45,7 @@ module id_exe (
     output reg exe_we,
 
     // Brach Addr
-    output wire [31:0] id_link_addr,
+    input [31:0] id_link_addr,
     output reg [31:0] exe_link_addr,
     // Stall
     input stall

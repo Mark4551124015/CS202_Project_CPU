@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 
-module stall_handle (
+module CTRL (
     input  rst,
     input  enter,
     output stall,
