@@ -398,7 +398,7 @@ module top (
   wire [23:0] io_led_data;
   wire io_blink_data;
   MEM_IO mem_io (
-      .clk(clock),
+      .clk(clk),
       .rst(rst),
       .io_we(io_we),
       .io_addr(io_addr),
