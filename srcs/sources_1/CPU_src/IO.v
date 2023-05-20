@@ -49,11 +49,11 @@ module IO_module (
   input clk;
 
   reg [31:0] counter;
-    reg [ 9:0] front;
-    reg [ 9:0] writter;
+  reg [ 7:0] front;
+  reg [ 7:0] writter;
   reg [ 4:0] back;
 
-    reg [23:0] VRAM       [0:1023];
+  reg [23:0] VRAM       [0:255];
   reg [31:0] VRAM_time;
   reg [31:0] Blink_time;
 
@@ -81,7 +81,7 @@ module IO_module (
     IO_led_out <= 24'b0;
     front <= 0;
     back <= 0;
-      for (i = 0; i < 1024; i = i + 1) VRAM[i] = 0;
+      for (i = 0; i < 256; i = i + 1) VRAM[i] = 0;
     VRAM_time = `One_Sec;
   end
 
@@ -103,7 +103,7 @@ module IO_module (
     if (seg_write) begin
         VRAM[writter] = Read_data_2[23:0];
         // VRAM[front] = 24'd114514;
-        if (front != 10'd1023) begin
+        if (front != 8'd255) begin
             front <= front + 1;
         end else begin
             front <= 0;
@@ -114,7 +114,7 @@ module IO_module (
         IO_seg_out = VRAM[back];
         if (VRAM_time > 0) VRAM_time <= VRAM_time - 1;
         else  begin
-            if (back != 10'd1023) back <= back + 1;
+            if (back != 8'd255) back <= back + 1;
             else back <= 0;
             VRAM_time <= `One_Sec;
         end
