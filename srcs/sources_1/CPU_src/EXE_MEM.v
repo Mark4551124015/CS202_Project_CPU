@@ -23,7 +23,7 @@
 `include "includes/defines.v"
 
 module EXE_MEM (
-    input clk,
+    // input clk,
     input rst,
 
     // From EXE
@@ -47,7 +47,7 @@ module EXE_MEM (
     output reg [31:0] mem_write_data,
 
     // No Stall
-    input stall,
+    // input stall,
 
     // Brach Addr
     output reg [31:0] last_store_data,

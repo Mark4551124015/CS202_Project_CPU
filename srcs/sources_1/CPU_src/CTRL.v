@@ -20,6 +20,7 @@ module CTRL (
             inited <= 0;
         end else if (enter) begin
             inited <= 1;
+        end else begin
         end
     end
 

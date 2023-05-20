@@ -80,26 +80,33 @@ module MEM_IO (
 
   always @(negedge clk) begin
     writter <= front;
-    if (seg_write) begin
-      VRAM[writter] = io_data[23:0];
-      if (front != 5'd31) begin
-        front <= front + 1;
-      end else begin
-        front <= 0;
-      end
-    end
-
-    if (front != back) begin
-      IO_seg_out = VRAM[back];
-      if (VRAM_time > 0) VRAM_time <= VRAM_time - 1;
-      else begin
-        if (back != 5'd31) back <= back + 1;
-        else back <= 0;
-        VRAM_time <= `One_Sec;
-      end
+    if (rst) begin
+      VRAM[writter] = 0;
+      front=0;
+      back=0;
     end else begin
-      IO_seg_out = 24'b0;
+      if (seg_write) begin
+        VRAM[writter] = io_data[23:0];
+        if (front != 5'd31) begin
+          front <= front + 1;
+        end else begin
+          front <= 0;
+        end
+      end
+
+      if (front != back) begin
+        IO_seg_out = VRAM[back];
+        if (VRAM_time > 0) VRAM_time <= VRAM_time - 1;
+        else begin
+          if (back != 5'd31) back <= back + 1;
+          else back <= 0;
+          VRAM_time <= `One_Sec;
+        end
+      end else begin
+        IO_seg_out = 24'b0;
+      end
     end
+    
 
     if (led_write) begin
       IO_led_out = io_data[15:0];

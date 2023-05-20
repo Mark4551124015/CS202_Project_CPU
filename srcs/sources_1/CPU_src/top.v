@@ -282,7 +282,7 @@ module top (
       .stall(stall)
   );
 
-  wire [ 3:0] exe_memop;  // Exe to exe_mem
+  wire [ 2:0] exe_memop;  // Exe to exe_mem
   wire [31:0] exe_memdata;
 
   EXE exe (
@@ -313,7 +313,7 @@ module top (
   wire [31:0] exe_mem_write_data;
 
   EXE_MEM exe_mem (
-      .clk(clk),
+    //   .clk(clk),
       .rst(rst),
 
       .exe_pc(id_exe_pc),
@@ -335,8 +335,8 @@ module top (
       .mem_write_data(exe_mem_write_data),
 
       .last_store_addr(last_store_addr),
-      .last_store_data(last_store_data),
-      .stall(stall)
+      .last_store_data(last_store_data)
+    //   .stall(stall)
   );
 
 

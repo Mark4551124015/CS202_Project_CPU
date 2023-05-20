@@ -34,7 +34,7 @@ module EXE (
 
     input [31:0] link_addr,
 
-    output reg [3:0] mem_op,
+    output reg [2:0] mem_op,
     output reg [31:0] mem_addr,
     output reg [31:0] mem_data,
     output this_load,

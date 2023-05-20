@@ -71,7 +71,7 @@ always @(*) begin
 
   end else begin
     wb_we = we;
-    wb_write_data = write_data;
+    wb_write_reg = write_reg;
   end
   case (mem_op)
     `MEM_LW_OP: begin
@@ -118,7 +118,7 @@ always @(*) begin
       end
     end
     default: begin
-      wb_write_data = mem_data;
+      wb_write_data = write_data;
       ram_addr = `ZeroWord;
       ram_write_data = `ZeroWord;
       ram_we = 0;
