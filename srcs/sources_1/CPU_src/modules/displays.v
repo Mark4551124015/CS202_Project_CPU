@@ -36,7 +36,7 @@ module displays (
   reg [7:0] seg_state;
   wire [7:0] seg_out_tmp;
   assign seg_out = ~seg_out_tmp;
-  wire clk_1000hz, clk_3hz;
+  wire clk_1000hz, clk_10hz;
   n2s number_to_seg(
       .number (current_num),
       .seg_out(seg_out_tmp)
@@ -51,14 +51,14 @@ module displays (
   );
 
   clk_module #(
-      .frequency(3)
+      .frequency(10)
   ) clk_div_3 (
       .clk(clk),
       .enable(blink_need),
-      .clk_out(clk_3hz)
+      .clk_out(clk_10hz)
   );
 
-  assign blink_out = blink_need & clk_3hz;
+  assign blink_out = clk_10hz & blink_need;
   assign led_out = led_display[15:0];
 
   //seg driver
