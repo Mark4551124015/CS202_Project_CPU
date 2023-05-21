@@ -36,7 +36,7 @@ module PC_reg (
         else if (!stall) begin
             if (branch_flag) begin
                 pc <= branch_addr;
-            end else if (pc < 32'd4294967295) begin
+            end else if (pc < 32'd65536) begin
                 pc <= pc + 4;
             end
         end
