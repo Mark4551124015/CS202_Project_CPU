@@ -77,6 +77,7 @@ module control32 (
   assign nBranch  = (opcode == `BNE_OP);
 
   wire MemRead;
+  
   //OJ need
   assign MemWrite = sw && inited;
   assign MemRead  = lw && inited;

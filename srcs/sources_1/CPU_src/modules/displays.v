@@ -23,14 +23,15 @@
 module displays (
     input clk,  //100mhz system clock
     input [23:0] data_display,  // data_display data
-    input [23:0] led_display,  // data_display data
+    input [15:0] led_display,  // data_display data
     input blink_need,  // need_blink
     output reg [7:0] seg_en,  // Rnables of eight seven segment digital tubes
     output [7:0] seg_out,  // Outputs
     output [15:0] led_out,
     output blink_out
 );
-  reg [3:0] num0, num1, num2, num3, num4, num5, num6, num7;  // num6 is MSB
+  reg [3:0] num0, num1, num2, num3, num4, num5, num6, num7,ne;  // num6 is MSB
+  reg [23:0] positive;
   reg [3:0] current_num;
   reg [7:0] seg_state;
   wire [7:0] seg_out_tmp;
@@ -50,15 +51,15 @@ module displays (
   );
 
   clk_module #(
-      .frequency(3)
+      .frequency(5)
   ) clk_div_3 (
       .clk(clk),
       .enable(blink_need),
       .clk_out(clk_3hz)
   );
 
-  assign blink_out = blink_need & clk_3hz;
-  assign led_out = led_display[15:0];
+  assign blink_out = clk_3hz;
+  assign led_out = led_display;
 
   //seg driver
   always @(posedge clk_1000hz) begin
@@ -67,14 +68,28 @@ module displays (
   end
 
   always @(posedge clk) begin
-    num7 <= data_display / 1_000_000_0 % 10;
-    num6 <= data_display / 1_000_000 % 10;
-    num5 <= data_display / 1_000_00 % 10;
-    num4 <= data_display / 1_000_0 % 10;
-    num3 <= data_display / 1_000 % 10;
-    num2 <= data_display / 1_00 % 10;
-    num1 <= data_display / 1_0 % 10;
-    num0 <= data_display % 10;
+    ne <= data_display / 1_000_000_0 % 10;
+    if(ne>0)begin
+        positive = 24'b0-data_display;
+        num7 <= 4'b1111;
+        num6 <= positive / 1_000_000 % 10;
+        num5 <= positive / 1_000_00 % 10;
+        num4 <= positive / 1_000_0 % 10;
+        num3 <= positive / 1_000 % 10;
+        num2 <= positive / 1_00 % 10;
+        num1 <= positive / 1_0 % 10;
+        num0 <= positive % 10;
+    end else begin
+        num7 <= data_display / 1_000_000_0 % 10;
+        num6 <= data_display / 1_000_000 % 10;
+        num5 <= data_display / 1_000_00 % 10;
+        num4 <= data_display / 1_000_0 % 10;
+        num3 <= data_display / 1_000 % 10;
+        num2 <= data_display / 1_00 % 10;
+        num1 <= data_display / 1_0 % 10;
+        num0 <= data_display % 10;
+    end
+    
     seg_en <= ~seg_state;
     case (seg_state)
     8'b1000_0000: current_num <= num7;

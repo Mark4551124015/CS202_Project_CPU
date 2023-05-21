@@ -95,8 +95,6 @@ module Ifetc32 (
   always @(*) begin
     if (reset) begin
       Next_PC = `ZeroWord;
-    end else if (Jr) begin
-      Next_PC = Read_data_1;
     end else if ((Branch && Zero) || (nBranch && ~Zero)) begin
       Next_PC = Addr_result;
     end else if (PC < 16'd65535) begin
@@ -111,20 +109,27 @@ module Ifetc32 (
   always @(negedge clock) begin
     if (reset) begin
       PC <= `ZeroWord;
+      link_addr = `ZeroWord;
     end 
     else if (!inited) begin
       PC <= `ZeroWord;
+      link_addr = `ZeroWord;
     end else begin
       if (Jmp || Jal) begin
         PC <= {4'b0000, Instruction[25:0], 2'b00};
-      end else PC <= Next_PC;
+        link_addr = branch_base_addr;
+      end else if (Jr) begin
+        PC <= Read_data_1;
+      end else begin 
+        PC <= Next_PC;
+      end
     end
   end
 
 
 
-  always @(posedge Jmp, posedge Jal, posedge reset) begin
-    if (reset) link_addr = `ZeroWord;
-    else if (Jmp || Jal) link_addr = branch_base_addr;
-  end
+  // always @(negedge clock) begin
+  //   if (reset) link_addr = `ZeroWord;
+  //   else if (Jal || Jmp) link_addr = branch_base_addr;
+  // end
 endmodule
