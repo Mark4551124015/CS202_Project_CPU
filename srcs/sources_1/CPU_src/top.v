@@ -105,14 +105,14 @@ module top (clock,
     
     reg upg_rst;
     always @(posedge clock) begin
-        if (spg_bufg) upg_rst = 0;
-        if (reset) upg_rst   = 1;
+        if (spg_bufg) upg_rst <= 0;
+        if (reset) upg_rst   <= 1;
     end
     always @(posedge clock) begin
         if (rst) begin
-            inited = 0;
+            inited <= 0;
         end else if (enter) begin
-            inited = 1;
+            inited <= 1;
         end
     end
     

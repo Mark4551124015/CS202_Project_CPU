@@ -91,20 +91,22 @@ module decode32 (
 
   always @(posedge clock) begin
     
-    if (Jal) write_register_address = 5'b11111;
-    else write_register_address = RegDst ? rd : rt;
+    if (Jal) write_register_address <= 5'b11111;
+    else write_register_address <= RegDst ? rd : rt;
     
-    if (Jal) write_data = opcplus4;
-    else if (!MemorIOtoReg) write_data = ALU_result;
+    if (Jal) write_data <= opcplus4;
+    else if (!MemorIOtoReg) write_data <= ALU_result;
     else if (MemorIOtoReg) begin
       write_data = mem_data;
     end
 
     if (reset) begin
-      for (i = 0; i < 32; i = i + 1) register[i] = 0;
-      register[29] = `SP_START_ADDR;  // Init sp register 
+      for (i = 0; i < 29; i = i + 1) register[i] <= 0;
+      register[29] <= `SP_START_ADDR;  // Init sp register 
+      register[30] <= 0;  
+      register[31] <= 0;  
     end else if (RegWrite && write_register_address != 0) begin
-      register[write_register_address] = write_data;
+      register[write_register_address] <= write_data;
     end
   end
 

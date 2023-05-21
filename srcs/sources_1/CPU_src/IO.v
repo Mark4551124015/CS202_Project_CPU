@@ -87,7 +87,7 @@ module IO_module (
     writter <= front;
     
     if (seg_write) begin
-        VRAM[writter] = Read_data_2[23:0];
+        VRAM[writter] <= Read_data_2[23:0];
         // VRAM[front] = 24'd114514;
         if (front != 5'd31) begin
             front <= front + 1;
@@ -109,17 +109,17 @@ module IO_module (
     end
 
     if (led_write) begin
-        IO_led_out = Read_data_2[15:0];
+        IO_led_out <= Read_data_2[15:0];
     end
 
     if (blk_write) begin
       Blink_time <= Read_data_2;
     end
     if (Blink_time>0) begin
-        IO_blink_out = 1;
+        IO_blink_out <= 1;
         Blink_time <= Blink_time - 1;
     end else begin
-        IO_blink_out = 0;
+        IO_blink_out <= 0;
     end
   end
 
