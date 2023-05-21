@@ -20,7 +20,8 @@ LIU Xiaoqun (12110943), GOU Yebei (12111427), FENG Zexin(12110104)
 
 ## How is it work?
 
-It use the folder except for `tcl/` and `project/`  as source files then generate the Vivado project at `project/`
+* It use the folder except for `tcl/` and `project/`  as source files then generate the Vivado project at `project/`
+* Three branches is in this project :`main` ,`singlecyle` and `pipeline`, remember to delete `project/` or `project_pipeline/` before generating a new one
 
 ## How To Use?
 
