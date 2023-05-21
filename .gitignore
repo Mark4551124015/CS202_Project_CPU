@@ -1,5 +1,4 @@
 project/
-project_pipeline/
 CPU submodel/
 *.jou
 *.log
