@@ -23,7 +23,7 @@
 module displays (
     input clk,  //100mhz system clock
     input [23:0] data_display,  // data_display data
-    input [23:0] led_display,  // data_display data
+    input [15:0] led_display,  // data_display data
     input blink_need,  // need_blink
     output reg [7:0] seg_en,  // Rnables of eight seven segment digital tubes
     output [7:0] seg_out,  // Outputs
@@ -58,8 +58,8 @@ module displays (
       .clk_out(clk_3hz)
   );
 
-  assign blink_out = blink_need & clk_3hz;
-  assign led_out = led_display[15:0];
+  assign blink_out = clk_3hz;
+  assign led_out = led_display;
 
   //seg driver
   always @(posedge clk_1000hz) begin

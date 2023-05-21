@@ -63,14 +63,6 @@ module top (clock,
     );
 
 
-    // clk_module #(
-    //     .frequency(3)
-    // ) clk_div (
-    //     .clk(clock),
-    //     .enable(1),
-    //     .clk_out(clk)
-    // );
-        
     
     // UART Programmer Pinouts
     wire upg_clk, upg_clk_o;
@@ -80,16 +72,12 @@ module top (clock,
     wire [31:0] upg_dat_o;  //data to program_rom or dmemory32
     wire spg_bufg;
     wire [31:0] switch_out = switch;
+
     wire blink_out;
     wire [15:0] led_out;
 
     
     
-    // Button and switches up,mid,down,left,right
-    // BUFG U1 (
-    // .I(button[4]),
-    // .O(enter)
-    // );
     TW U2 (
     .clk(clock),
     .I(button[3]),
@@ -302,10 +290,9 @@ module top (clock,
         .blink_need(blink_need),
         .seg_out(seg_out),
         .seg_en(seg_en),
-        .led_out(led),
-        .blink_out(blink_out)
+        .led_out(led[15:0]),
+        .blink_out(led[16])
     );
-    assign led[15:0] = led_out[15:0];
-    assign led[16] = blink_out;
-    // assign led[7:0] = ;
+
+    assign  led[23] = blink_need;
 endmodule
