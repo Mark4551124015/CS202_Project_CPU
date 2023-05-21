@@ -35,7 +35,7 @@ module MEM_IO (
   input [2:0] TEST_input,
 
   output reg [23:0] IO_seg_out,
-  output reg [23:0] IO_led_out,
+  output reg [15:0] IO_led_out,
   output reg IO_blink_out
 );
 
@@ -104,7 +104,7 @@ module MEM_IO (
     end
 
     if (blk_write) begin
-      Blink_time <= io_data * `One_Sec;
+      Blink_time <= io_data;
     end
     if (Blink_time > 0) begin
       IO_blink_out <= 1;

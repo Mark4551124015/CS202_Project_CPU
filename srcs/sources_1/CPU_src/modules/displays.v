@@ -27,7 +27,7 @@ module displays (
     input blink_need,  // need_blink
     output reg [7:0] seg_en,  // Rnables of eight seven segment digital tubes
     output [7:0] seg_out,  // Outputs
-    output [23:0] led_out,
+    output [15:0] led_out,
     output blink_out
 );
 
@@ -53,14 +53,13 @@ module displays (
   );
 
   clk_module #(
-      .frequency(3)
+      .frequency(5)
   ) clk_div_3 (
       .clk(clk),
       .enable(blink_need),
-      .clk_out(clk_3hz)
+      .clk_out(blink_out)
   );
 
-  assign blink_out = blink_need & clk_3hz;
   assign led_out   = led_display[15:0];
 
   //seg driver
@@ -109,7 +108,6 @@ module displays (
   end
 
   assign led_out[15:0] = led_display;
-  assign led_out[16]   = blink_need;
   
-  // assign led_out[7:0] = ;
+
 endmodule
