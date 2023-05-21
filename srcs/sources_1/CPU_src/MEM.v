@@ -47,12 +47,8 @@ module MEM (
     output reg [31:0] io_write_data,
     output reg io_we,
     input [31:0] io_read_data
-
-    // output stall_req,
-    
     );
 
-// assign  stall_req    = (mem_addr >= `IO_START_MEM);
 wire IS_IO = (mem_addr >= `IO_START_MEM);
 
 always @(*) begin

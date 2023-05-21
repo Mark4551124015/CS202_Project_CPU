@@ -66,7 +66,7 @@ module EXE (
         `EXE_SLTU_OP: wb_write_data = (reg_1 < reg_2) ? 1 : 0;
         `EXE_ADD_OP:  wb_write_data = reg_1 + reg_2;
         `EXE_SUB_OP:  wb_write_data = reg_1 + (~reg_2) + 1;
-        `EXE_MUL_OP:  wb_write_data = reg_1 * reg_2;  //无符号乘法代替有符号乘法
+        `EXE_MUL_OP:  wb_write_data = reg_1 * reg_2;
         `EXE_JAL_OP:  wb_write_data = link_addr;
 
       endcase

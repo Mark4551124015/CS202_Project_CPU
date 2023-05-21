@@ -96,7 +96,7 @@ module top (
   wire exe_we;
   wire [4:0] exe_write_reg;
   wire [31:0] exe_write_data;
-  wire [2:0] exe_memop;  // Exe to exe_mem
+  wire [2:0] exe_memop;
   wire [31:0] exe_memdata;
 
   //EXE_MEM to MEM
@@ -144,33 +144,12 @@ module top (
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
   //Clock
   cpuclk clk_mod (
       .clk_in1 (clock),
-        .clk_out1(clk),
+      .clk_out1(clk),
       .clk_out2(clk_10mhz)
   );
-
-//   clk_module #(
-//       .frequency(`One_Sec)
-//   ) clk_div_3 (
-//       .clk(clock),
-//       .enable(1),
-//       .clk_out(clk)
-//   );
-
 
   reg upg_rst;
   always @(posedge clock) begin
@@ -238,8 +217,6 @@ module top (
       .stall(stall),
       .pc(pc_reg_pc_o),
       .inited(inited)
-      //   .chip_enable()
-      //   .chip_enable(pc_chip_enable)
   );
 
 
@@ -480,24 +457,15 @@ module top (
       .wb_write_data(wb_write_data)
   );
 
-
-
-  assign led[23]   = io_we;
-  assign led[22]   = stall;
-  assign led[21]   = wb_we;
-
-
-
   displays disp (
       .clk(clock),
-    //   .data_display(io_addr),
       .data_display(io_seg_data),
       .led_display(io_led_data),
       .blink_need(io_blink_data),
       .seg_out(seg_out),
       .seg_en(seg_en),
       .led_out(led[15:0]),
-      .blink_out(blink_out)
+      .blink_out(led[16])
   );
 
 
