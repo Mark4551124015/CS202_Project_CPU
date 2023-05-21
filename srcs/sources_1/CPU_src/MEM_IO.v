@@ -58,16 +58,6 @@ module MEM_IO (
 
 
   integer i;
-  initial begin
-    A_reg <= 8'b0;
-    B_reg <= 8'b0;
-    IO_seg_out <= 24'b0;
-    IO_led_out <= 24'b0;
-    front <= 0;
-    back <= 0;
-    for (i = 0; i < 32; i = i + 1) VRAM[i] = 0;
-    VRAM_time = `One_Sec;
-  end
 
   always @(*) begin
     if (enterA) begin
@@ -81,12 +71,12 @@ module MEM_IO (
   always @(negedge clk) begin
     writter <= front;
     if (rst) begin
-      VRAM[writter] = 0;
-      front=0;
-      back=0;
+      VRAM[writter] <= 0;
+      front<=0;
+      back<=0;
     end else begin
       if (seg_write) begin
-        VRAM[writter] = io_data[23:0];
+        VRAM[writter] <= io_data[23:0];
         if (front != 5'd31) begin
           front <= front + 1;
         end else begin
@@ -95,31 +85,32 @@ module MEM_IO (
       end
 
       if (front != back) begin
-        IO_seg_out = VRAM[back];
-        if (VRAM_time > 0) VRAM_time <= VRAM_time - 1;
-        else begin
+        IO_seg_out <= VRAM[back];
+        if (VRAM_time > 0) begin
+          VRAM_time <= VRAM_time - 1;
+        end else begin
           if (back != 5'd31) back <= back + 1;
           else back <= 0;
           VRAM_time <= `One_Sec;
         end
       end else begin
-        IO_seg_out = 24'b0;
+        IO_seg_out <= 24'b0;
       end
     end
     
 
     if (led_write) begin
-      IO_led_out = io_data[15:0];
+      // IO_led_out = io_data[15:0];
     end
 
     if (blk_write) begin
       Blink_time <= io_data * `One_Sec;
     end
     if (Blink_time > 0) begin
-      IO_blink_out = 1;
+      IO_blink_out <= 1;
       Blink_time <= Blink_time - 1;
     end else begin
-      IO_blink_out = 0;
+      IO_blink_out <= 0;
     end
   end
 

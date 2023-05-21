@@ -30,7 +30,7 @@ module IF (input clk,
             input [14:0] upg_adr_i,     // UPG write address
             input [31:0] upg_dat_i,     // UPG write data
             input upg_done_i,
-            input ce,
+            input inited,
             output reg [31:0] Instruction); // 1 if program finished
     
     
@@ -50,7 +50,7 @@ module IF (input clk,
     .douta(Instruction_read)
     );
     always @(*) begin
-        if (kickOff && ce)  Instruction = Instruction_read;
+        if (kickOff && inited)  Instruction = Instruction_read;
         else Instruction          = `ZeroWord;
     end
     

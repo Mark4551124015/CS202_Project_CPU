@@ -59,9 +59,18 @@ module top (
   //Clock
   cpuclk clk_mod (
       .clk_in1 (clock),
-      .clk_out1(clk),
+      //   .clk_out1(clk),
       .clk_out2(clk_10mhz)
   );
+
+  clk_module #(
+      .frequency(3)
+  ) clk_div_3 (
+      .clk(clock),
+      .enable(1),
+      .clk_out(clk)
+  );
+
 
   reg upg_rst;
   always @(posedge clock) begin
@@ -93,6 +102,9 @@ module top (
       .O  (enterB)
   );
 
+  // assign enter = button[4];
+  // assign start_pg = button[2];
+
   uart UART (
       .upg_clk_i (clk_10mhz),
       .upg_rst_i (upg_rst),
@@ -108,18 +120,21 @@ module top (
   wire stall;
   wire stall_req_if, stall_req_id, stall_req_io;
   CTRL ctrl (
+      .clk(clk),
       .rst(rst),
       .enter(enter),
       .stall_req_id(stall_req_id),
       .stall_req_if(stall_req_if),
       .stall_req_io(stall_req_io),
-      .stall(stall)
+      .stall(stall),
+      .inited(inited)
   );
 
   wire [31:0] pc_reg_pc;
   wire branch_flag;
   wire [31:0] branch_addr;
-  wire pc_chip_enable;
+  //   wire pc_chip_enable;
+
   // pc and IF
   PC_reg pc_reg (
       .clk(clk),
@@ -128,7 +143,9 @@ module top (
       .branch_addr(branch_addr),
       .stall(stall),
       .pc(pc_reg_pc),
-      .chip_enable(pc_chip_enable)
+      .inited(inited)
+      //   .chip_enable()
+      //   .chip_enable(pc_chip_enable)
   );
 
   wire [31:0] if_inst;
@@ -144,7 +161,7 @@ module top (
       .upg_dat_i(upg_dat_o),
       .upg_done_i(upg_done_o),
       .Instruction(if_inst),
-      .ce(pc_chip_enable)
+      .inited(inited)
   );
 
   wire [31:0] if_id_pc;
@@ -157,7 +174,7 @@ module top (
       .if_inst(if_inst),
       .id_pc(if_id_pc),
       .id_inst(if_id_inst),
-      .stall(stall_req_id)
+      .stall(stall)
   );
 
   wire [4:0] id_read_addr_1;
@@ -175,7 +192,7 @@ module top (
   wire [31:0] id_link_addr;
 
   // Forwarding
-  wire exe_mem_we;
+  wire exe_we;
   wire [4:0] exe_write_reg;
   wire [31:0] exe_write_data;
 
@@ -187,7 +204,7 @@ module top (
   wire [31:0] last_store_addr;
   wire [31:0] last_store_data;
   wire [31:0] exe_memaddr;
-  wire exe_we;
+
   // IDecoder
   ID idecoder (
       .clk (clk),
@@ -210,6 +227,7 @@ module top (
 
       .we(id_we),
       .id_inst(id_inst),
+
       .exe_we(exe_we),
       .exe_write_reg(exe_write_reg),
       .exe_write_data(exe_write_data),
@@ -217,8 +235,10 @@ module top (
       .mem_we(ram_wb_we),
       .mem_write_reg(ram_wb_write_reg),
       .mem_write_data(ram_wb_write_data),
+
       .last_store_addr(last_store_addr),
       .last_store_data(last_store_data),
+
       .exe_load_addr(exe_memaddr),
 
       .branch_flag(branch_flag),
@@ -300,20 +320,24 @@ module top (
       .mem_addr(exe_memaddr),
       .mem_data(exe_memdata),
       .this_load(last_is_load),
+
       .wb_write_reg(exe_write_reg),
       .wb_write_data(exe_write_data),
       .wb_we(exe_we)
   );
 
+  wire exe_mem_we;
   wire [31:0] exe_mem_pc;
-  wire [ 3:0] exe_mem_memop;
+  wire [2:0] exe_mem_memop;
   wire [31:0] exe_mem_memaddr;
   wire [31:0] exe_mem_memdata;
-  wire [ 4:0] exe_mem_write_reg;
+  wire [4:0] exe_mem_write_reg;
   wire [31:0] exe_mem_write_data;
 
+
+
   EXE_MEM exe_mem (
-    //   .clk(clk),
+      .clk(clk),
       .rst(rst),
 
       .exe_pc(id_exe_pc),
@@ -336,7 +360,7 @@ module top (
 
       .last_store_addr(last_store_addr),
       .last_store_data(last_store_data)
-    //   .stall(stall)
+      //   .stall(stall)
   );
 
 
@@ -356,10 +380,12 @@ module top (
       .clk(clk),
       .rst(rst),
       .mem_pc(exe_mem_pc),
+
       .we(exe_mem_we),
       .write_reg(exe_mem_write_reg),
       .write_data(exe_mem_write_data),
-      .mem_op(exe_mem_memop),
+
+      .mem_op  (exe_mem_memop),
       .mem_addr(exe_mem_memaddr),
       .mem_data(exe_mem_memdata),
 
@@ -427,19 +453,29 @@ module top (
   );
 
 
+  // wire [24:0] debug;
+  // assign led[23:16] = pc_reg_pc[10:2];
+  // assign led = io_addr[7:0];
+
+  assign led[23]   = io_we;
+  assign led[22]   = stall;
+  assign led[21]   = wb_we;
 
 
 
   displays disp (
       .clk(clock),
-      .data_display(io_seg_data),
+      .data_display(io_addr),
+      //   .data_display(io_seg_data),
       .led_display(io_led_data),
       .blink_need(io_blink_data),
       .seg_out(seg_out),
       .seg_en(seg_en),
-      .led_out(led),
+      //   .led_out(led[15:0]),
       .blink_out(blink_out)
   );
+
+
 
 
 

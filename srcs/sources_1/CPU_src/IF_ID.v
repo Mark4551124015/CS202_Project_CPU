@@ -35,10 +35,10 @@ module IF_ID (input clk,
     
     // Update and stall
     always @(posedge clk) begin
-        if (rst | stall) begin
+        if (rst) begin
             id_pc <= `ZeroWord;
             id_inst <= `ZeroWord;
-        end else begin 
+        end else if (!stall) begin 
             id_pc <= if_pc;
             id_inst <= if_inst;
         end

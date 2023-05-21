@@ -2,20 +2,17 @@
 
 
 module CTRL (
+    input  clk,
     input  rst,
     input  enter,
     output stall,
     input  stall_req_if,
     input  stall_req_id,
-    input  stall_req_io
+    input  stall_req_io,
+    output reg inited
 );
-    reg inited;
-    
-    initial begin
-        inited <= 0;
-    end
 
-    always @(*) begin
+    always @(posedge clk) begin
         if (rst) begin
             inited <= 0;
         end else if (enter) begin
@@ -23,7 +20,6 @@ module CTRL (
         end else begin
         end
     end
-
-    assign stall = stall_req_if | stall_req_id | stall_req_io | !inited;
+    assign stall =  stall_req_id;
 
 endmodule

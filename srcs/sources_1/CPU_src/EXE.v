@@ -43,7 +43,7 @@ module EXE (
     output reg wb_we
 );
 
-  assign this_load = (aluop == `EXE_LB_OP) | (aluop == `EXE_LW_OP);
+  assign this_load = (aluop == `EXE_LW_OP);
 
   always @(*) begin
     if (rst) begin
@@ -68,6 +68,12 @@ module EXE (
         `EXE_SUB_OP:  wb_write_data = reg_1 + (~reg_2) + 1;
         `EXE_MUL_OP:  wb_write_data = reg_1 * reg_2;  //无符号乘法代替有符号乘法
         `EXE_JAL_OP:  wb_write_data = link_addr;
+        `EXE_NOP_OP: begin
+          wb_write_data = `ZeroWord;
+          wb_write_reg = `NOPRegAddr;
+          wb_we = 0;
+        end
+
       endcase
     end
   end
@@ -88,6 +94,11 @@ module EXE (
           mem_op   = `MEM_SW_OP;
           mem_addr = reg_1 + imm_ext;
           mem_data = reg_2;
+        end
+        `EXE_NOP_OP: begin
+          mem_op = `MEM_NOP_OP;
+          mem_addr = `ZeroWord;
+          mem_data = `ZeroWord;
         end
         default: begin
           mem_op   = `MEM_NOP_OP;

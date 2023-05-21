@@ -57,7 +57,7 @@ always @(posedge clk)begin
 			exe_reg_1 <= `ZeroWord;
 			exe_reg_2 <= `ZeroWord;
 			exe_write_reg <= `NOPRegAddr;
-			exe_we <= `WriteDisable;
+			exe_we <= 0;
 			exe_inst <= `ZeroWord;
 			exe_pc <= `ZeroWord;
 			exe_link_addr <= `ZeroWord;

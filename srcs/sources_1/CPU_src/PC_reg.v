@@ -21,26 +21,22 @@
 
 `include "includes/defines.v"
 
-module PC_reg (input clk,
+module PC_reg (
+    input clk,
     input rst,
     input branch_flag,
     input [31:0] branch_addr,
     input stall,
     output reg [31:0] pc,
-    output reg chip_enable);
+    input inited);
     
-    
+
     always @(posedge clk) begin
-        if (rst) chip_enable <= 0;
-        else chip_enable     <= 1;
-    end
-    
-    always @(posedge clk) begin
-        if (!chip_enable) pc <= `ZeroWord;
+        if (!inited) pc <= `ZeroWord;
         else if (!stall) begin
             if (branch_flag) begin
                 pc <= branch_addr;
-                end else begin
+            end else if (pc < 32'd4294967295) begin
                 pc <= pc + 4;
             end
         end

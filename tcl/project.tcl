@@ -131,7 +131,7 @@ set obj [get_filesets sources_1]
 set files [list \
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/top.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/CTRL.v"]"\
- "[file normalize "$origin_dir/srcs/sources_1/CPU_src/PC_reg.v"]"\
+ "[file normalize "$origin_dir/srcs/sources_1/CPU_src/PC_REG.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/IF.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/IF_ID.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/ID.v"]"\

@@ -23,7 +23,7 @@
 `include "includes/defines.v"
 
 module EXE_MEM (
-    // input clk,
+    input clk,
     input rst,
 
     // From EXE
@@ -47,7 +47,7 @@ module EXE_MEM (
     output reg [31:0] mem_write_data,
 
     // No Stall
-    // input stall,
+  
 
     // Brach Addr
     output reg [31:0] last_store_data,
@@ -56,10 +56,10 @@ module EXE_MEM (
 
 );
 
-  always @(*) begin
+  always @(posedge clk) begin
     if (rst) begin
       mem_pc <= `ZeroWord;
-      mem_mem_addr <= `MEM_NOP_OP;
+      mem_mem_op <= `MEM_NOP_OP;
       mem_mem_addr <= `ZeroWord;
       mem_mem_data <= `ZeroWord;
 
@@ -81,11 +81,11 @@ module EXE_MEM (
       case (exe_mem_op) 
         `MEM_SW_OP: begin
           last_store_addr <= exe_mem_addr;
-          last_store_addr <= exe_mem_addr; 
+          last_store_data <= exe_mem_data; 
         end
         default: begin
-          last_store_addr <= last_store_addr;
-          last_store_addr <= last_store_addr; 
+          last_store_addr <= `ZeroWord;
+          last_store_data <= `ZeroWord; 
         end
       endcase
     end

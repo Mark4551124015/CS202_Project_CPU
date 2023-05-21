@@ -76,10 +76,12 @@ module ID (input clk,
     
     reg stall_req_reg1;
     reg stall_req_reg2;
+
     
     reg [31:0] imm_ext;
     
     assign next_pc = pc + 4;
+
     assign stall_req = stall_req_reg1 | stall_req_reg2;
     assign id_inst = inst;
     // Decoding
@@ -93,7 +95,7 @@ module ID (input clk,
             we           = 0;
             write_reg    = `NOPRegAddr;
             imm_ext = `ZeroWord;
-            end else begin
+        end else begin
             aluop        = `EXE_NOP_OP;
             re_1         = 0;
             read_addr_1  = rs;
@@ -373,12 +375,12 @@ module ID (input clk,
 
         //确定是否跳转及跳转地址
     always @(*) begin
-        if(rst == `RstEnable) begin
-            branch_flag = 1;
+        if(rst) begin
+            branch_flag = 0;
             branch_addr = `ZeroWord;
             link_addr = `ZeroWord;
         end else begin
-            branch_flag = 1;
+            branch_flag = 0;
             branch_addr = `ZeroWord;
             link_addr = `ZeroWord;
         end
@@ -397,20 +399,6 @@ module ID (input clk,
                 end else begin
                 end
             end        
-            `BGTZ_OP: begin
-                if(reg_1[31] == 1'b0 && reg_1 != `ZeroWord) begin
-                    branch_flag = 1;
-                    branch_addr = branch_address;
-                end else begin
-                end
-            end
-            `BLEZ_OP: begin 
-                if(reg_1[31] == 1'b1 || reg_1 == `ZeroWord) begin
-                    branch_flag = 1;
-                    branch_addr = branch_address;
-                end else begin
-                end
-            end
             `J_OP: begin
                 branch_flag = 1;
                 branch_addr = jump_addr;
@@ -418,7 +406,7 @@ module ID (input clk,
             `JAL_OP: begin
                 branch_flag = 1;
                 branch_addr = jump_addr;
-                link_addr = next_pc + 4'h4;
+                link_addr = next_pc + 4;
             end
             `R_OP: begin
                 if(shamt == 5'b00000) begin
@@ -430,51 +418,15 @@ module ID (input clk,
                         `JALR_FUNC: begin
                             branch_flag = 1;
                             branch_addr = reg_1;
-                            link_addr = next_pc + 4'h4;
+                            link_addr = next_pc + 4;
                         end
                     default:	begin
                         end
                     endcase
                 end
             end
-            `SPECIAL_OP: begin
-                case(rt)
-                    `BGEZ_RT: begin
-                        if(reg_1[31] == 1'b0) begin
-                            branch_flag = 1;
-                            branch_addr = branch_address;
-                        end else begin
-                        end
-                    end
-                    `BLTZ_RT: begin
-                        if(reg_1[31] == 1'b1) begin
-                            branch_flag = 1;
-                            branch_addr = branch_address;
-                        end else begin
-                        end
-                    end
-                    `BGEZAL_RT: begin
-                        if(reg_1[31] == 1'b0) begin
-                            branch_flag = 1;
-                            branch_addr = branch_address;
-                            link_addr = next_pc + 4'h4;
-                        end else begin
-                        end
-                    end
-                    `BLTZAL_RT: begin
-                        if(reg_1[31] == 1'b1) begin
-                            branch_flag = 1;
-                            branch_addr = branch_address;
-                            link_addr = next_pc + 4'h4;
-                        end else begin
-                        end
-                    end
-                    default : begin
-                    end
-                endcase
-            end       
             default :begin
-                branch_flag = 1;
+                branch_flag = 0;
                 branch_addr = `ZeroWord;
                 link_addr = `ZeroWord;
             end
@@ -489,11 +441,12 @@ module ID (input clk,
       if (rst) begin
          reg_1 = `ZeroWord;
       end else if (reg_1_load_hazard) begin             // Load
-        if (exe_load_addr == last_store_addr) begin
-          reg_1 = last_store_data;          
-        end else begin
-          stall_req_reg1 = 1;
-        end
+        // if (exe_load_addr == last_store_addr) begin
+        //   reg_1 = last_store_data;          
+        // end else begin
+        //   stall_req_reg1 = 1;
+        // end
+            stall_req_reg1 = 1;
       end else if (re_1 && exe_we && exe_write_reg == read_addr_1) begin // EXE-EXE Forwarding
         reg_1 = exe_write_data;
       end else if (re_1 && mem_we && mem_write_reg == read_addr_1) begin // MEM-EXE Forwarding
@@ -515,11 +468,12 @@ module ID (input clk,
       if (rst) begin
         reg_2 = `ZeroWord;
       end else if (reg_2_load_hazard) begin             // Load
-        if (exe_load_addr == last_store_addr) begin
-          reg_2 = last_store_data;          
-        end else begin
-          stall_req_reg2 = 1;
-        end
+        // if (exe_load_addr == last_store_addr) begin
+        //   reg_2 = last_store_data;          
+        // end else begin
+        //   stall_req_reg2 = 1;
+        // end
+        stall_req_reg2 = 1;
       end else if (re_2 && exe_we && exe_write_reg == read_addr_2) begin // EXE-EXE Forwarding
         reg_2 = exe_write_data;
       end else if (re_2 && mem_we && mem_write_reg == read_addr_2) begin // MEM-EXE Forwarding

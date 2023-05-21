@@ -134,4 +134,5 @@
 `define     NoStop          1'b0            //不停止
 `define     NOPRegAddr      5'b00000        //空操作使用的寄存器地址
 
-`define     One_Sec         32'd23_000_000    //一秒
+`define     One_Sec         32'd3    //一秒
+// `define     One_Sec         32'd23_000_000    //一秒
