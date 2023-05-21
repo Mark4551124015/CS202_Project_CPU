@@ -294,5 +294,4 @@ module top (clock,
         .blink_out(led[16])
     );
 
-    assign  led[23] = blink_need;
 endmodule

@@ -51,7 +51,7 @@ module displays (
   );
 
   clk_module #(
-      .frequency(3)
+      .frequency(5)
   ) clk_div_3 (
       .clk(clk),
       .enable(blink_need),
