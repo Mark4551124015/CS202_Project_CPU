@@ -65,6 +65,9 @@ module IO_module (
   reg [7:0] A_reg;
   reg [7:0] B_reg;
 
+  // reg seg_write;
+  // reg led_write;
+  // reg blk_write;  
   wire seg_write;
   wire led_write;
   wire blk_write;
@@ -116,21 +119,21 @@ module IO_module (
             VRAM_time <= `One_Sec;
         end
     end else begin
-        IO_seg_out <= 24'b0;
+        IO_seg_out = 24'b0;
     end
 
     if (led_write) begin
-        IO_led_out <= Read_data_2[15:0];
+        IO_led_out = Read_data_2[15:0];
     end
 
     if (blk_write) begin
       Blink_time <= Read_data_2;
     end
     if (Blink_time>0) begin
-        IO_blink_out <= 1;
+        IO_blink_out = 1;
         Blink_time <= Blink_time - 1;
     end else begin
-        IO_blink_out <= 0;
+        IO_blink_out = 0;
     end
   end
 
@@ -141,6 +144,13 @@ module IO_module (
   assign blk_write = (IOWrite && ALU_result == `IO_BLINK_ADDR);
 
   always @(*) begin
+    // IO_led_out = {20'b0,IOWrite,seg_write,led_write,blk_write};
+    // IO_led_out[3:0] = Read_data_2[3:0];
+    // IO_led_out[11:4] = ALU_result[7:0];
+    // IO_seg_out = ALU_result;
+    // IO_led_out[22]   = IOWrite;
+    // IO_led_out[23]   = seg_write;
+
     if (IORead) begin
       case (ALU_result)
         `IO_A_ADDR:    MemorIO_Result = {24'b0, A_reg};
