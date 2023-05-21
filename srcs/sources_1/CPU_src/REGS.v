@@ -46,8 +46,10 @@ module REGS (
     integer i;
     always @(posedge clk) begin
         if (rst) begin
-            for(i = 0;i < 31; i = i + 1) registers[i] <= 0;
-            for(i = 0;i < 31; i = i + 1) registers[i] <= 0;
+            for(i = 0;i < 29; i = i + 1) registers[i] <= 0;
+            registers[29] <= `SP_START_ADDR;
+            registers[30] <= 0;
+            registers[31] <= 0;
         end else begin
             if (wb_we && wb_write_reg != 5'b0) begin
                 registers[wb_write_reg] <= wb_write_data; 
