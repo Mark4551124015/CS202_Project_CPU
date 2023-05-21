@@ -119,20 +119,10 @@ always @(*) begin
         io_we = 0;
       end
     end
-    `MEM_NOP_OP: begin
-        ram_addr = `ZeroWord;
-        ram_write_data = `ZeroWord;
-        ram_we = 0;
-        ram_chip_enable = 0;
-        io_addr = `ZeroWord;
-        io_write_data = `ZeroWord;
-        io_we = 0;
-    end
+
     default: begin
-        wb_we = 0;
-        wb_write_reg = `NOPRegAddr;
-        wb_write_data = `ZeroWord;
-        
+        wb_write_data = write_data;
+
         ram_addr = `ZeroWord;
         ram_write_data = `ZeroWord;
         ram_we = 0;

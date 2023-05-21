@@ -19,7 +19,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-
+`include "includes/defines.v"
 
 module top (
     clock,
@@ -56,20 +56,120 @@ module top (
   wire clk;
   wire inited;
 
+
+
+  // PC to IF
+  wire [31:0] pc_reg_pc_o;
+  wire branch_flag;
+  wire [31:0] branch_addr;
+  //IF to IF_ID
+  wire [31:0] if_inst;
+  //IF_ID to ID
+  wire [31:0] if_id_pc;
+  wire [31:0] if_id_inst;
+  // ID to ID_EXE
+  wire [4:0] id_read_addr_1;
+  wire [4:0] id_read_addr_2;
+  wire id_re_1, id_re_2;
+  wire [5:0] id_aluop;
+  wire [31:0] reg_reg_1;
+  wire [31:0] reg_reg_2;
+  wire [31:0] id_reg_1;
+  wire [31:0] id_reg_2;
+  wire [4:0] id_write_reg;
+  wire id_we;
+  wire [31:0] id_inst;
+  wire [31:0] id_link_addr;
+
+  // ID_EXE to EXE
+  wire [5:0] id_exe_aluop;
+  wire [31:0] id_exe_pc;
+  wire [31:0] id_exe_inst;
+  wire [31:0] id_exe_reg_1;
+  wire [31:0] id_exe_reg_2;
+  wire [4:0] id_exe_write_reg;
+  wire [31:0] id_exe_write_data;
+  wire id_exe_we;
+  wire [31:0] id_exe_link_addr;
+
+  //EXE to EXE_MEM
+  wire exe_we;
+  wire [4:0] exe_write_reg;
+  wire [31:0] exe_write_data;
+  wire [2:0] exe_memop;  // Exe to exe_mem
+  wire [31:0] exe_memdata;
+
+  //EXE_MEM to MEM
+  wire exe_mem_we;
+  wire [31:0] exe_mem_pc;
+  wire [2:0] exe_mem_memop;
+  wire [31:0] exe_mem_memaddr;
+  wire [31:0] exe_mem_memdata;
+  wire [4:0] exe_mem_write_reg;
+  wire [31:0] exe_mem_write_data;
+
+  // MEM to IO and RAM
+  wire [31:0] ram_addr;
+  wire [31:0] ram_write_data;
+  wire ram_chip_enable;
+  wire [31:0] ram_read_data;
+  wire ram_we;
+
+  wire [31:0] io_addr;
+  wire [31:0] io_write_data;
+  wire [31:0] io_read_data;
+  wire io_we;
+
+  // MEM to WB
+  wire mem_wb_we;
+  wire [4:0] mem_wb_write_reg;
+  wire [31:0] mem_wb_write_data;
+  // WB
+  wire wb_we;
+  wire [31:0] wb_write_data;
+  wire [4:0] wb_write_reg;
+
+
+  // Forwarding
+  wire last_is_load;
+  wire [31:0] last_store_addr;
+  wire [31:0] last_store_data;
+  wire [31:0] exe_memaddr;
+
+  // IO
+  wire [23:0] io_seg_data;
+  wire [23:0] io_led_data;
+  wire io_blink_data;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   //Clock
   cpuclk clk_mod (
       .clk_in1 (clock),
-      //   .clk_out1(clk),
+        .clk_out1(clk),
       .clk_out2(clk_10mhz)
   );
 
-  clk_module #(
-      .frequency(3)
-  ) clk_div_3 (
-      .clk(clock),
-      .enable(1),
-      .clk_out(clk)
-  );
+//   clk_module #(
+//       .frequency(`One_Sec)
+//   ) clk_div_3 (
+//       .clk(clock),
+//       .enable(1),
+//       .clk_out(clk)
+//   );
 
 
   reg upg_rst;
@@ -78,7 +178,7 @@ module top (
     if (reset) upg_rst = 1;
   end
 
-  //used for other modules which don't relate to UART
+
   assign rst = reset | !upg_rst;
 
   TW U2 (
@@ -102,8 +202,6 @@ module top (
       .O  (enterB)
   );
 
-  // assign enter = button[4];
-  // assign start_pg = button[2];
 
   uart UART (
       .upg_clk_i (clk_10mhz),
@@ -130,10 +228,6 @@ module top (
       .inited(inited)
   );
 
-  wire [31:0] pc_reg_pc;
-  wire branch_flag;
-  wire [31:0] branch_addr;
-  //   wire pc_chip_enable;
 
   // pc and IF
   PC_reg pc_reg (
@@ -142,18 +236,17 @@ module top (
       .branch_flag(branch_flag),
       .branch_addr(branch_addr),
       .stall(stall),
-      .pc(pc_reg_pc),
+      .pc(pc_reg_pc_o),
       .inited(inited)
       //   .chip_enable()
       //   .chip_enable(pc_chip_enable)
   );
 
-  wire [31:0] if_inst;
 
   IF ifetch (
       .clk(clk),
       .rst(rst),
-      .pc(pc_reg_pc),
+      .pc(pc_reg_pc_o),
       .upg_rst_i(upg_rst),
       .upg_clk_i(upg_clk_o),
       .upg_wen_i(upg_wen_o),
@@ -164,46 +257,17 @@ module top (
       .inited(inited)
   );
 
-  wire [31:0] if_id_pc;
-  wire [31:0] if_id_inst;
+
 
   IF_ID if_id (
       .clk(clk),
       .rst(rst),
-      .if_pc(pc_reg_pc),
+      .if_pc(pc_reg_pc_o),
       .if_inst(if_inst),
       .id_pc(if_id_pc),
       .id_inst(if_id_inst),
       .stall(stall)
   );
-
-  wire [4:0] id_read_addr_1;
-  wire [4:0] id_read_addr_2;
-  wire id_re_1, id_re_2;
-  wire [5:0] id_aluop;
-  wire [31:0] reg_reg_1;
-  wire [31:0] reg_reg_2;
-  wire [31:0] id_reg_1;
-  wire [31:0] id_reg_2;
-  wire [4:0] id_write_reg;
-  wire id_we;
-  wire [31:0] id_inst;
-
-  wire [31:0] id_link_addr;
-
-  // Forwarding
-  wire exe_we;
-  wire [4:0] exe_write_reg;
-  wire [31:0] exe_write_data;
-
-  wire ram_wb_we;
-  wire [4:0] ram_wb_write_reg;
-  wire [31:0] ram_wb_write_data;
-
-  wire last_is_load;
-  wire [31:0] last_store_addr;
-  wire [31:0] last_store_data;
-  wire [31:0] exe_memaddr;
 
   // IDecoder
   ID idecoder (
@@ -232,9 +296,9 @@ module top (
       .exe_write_reg(exe_write_reg),
       .exe_write_data(exe_write_data),
 
-      .mem_we(ram_wb_we),
-      .mem_write_reg(ram_wb_write_reg),
-      .mem_write_data(ram_wb_write_data),
+      .mem_we(mem_wb_we),
+      .mem_write_reg(mem_wb_write_reg),
+      .mem_write_data(mem_wb_write_data),
 
       .last_store_addr(last_store_addr),
       .last_store_data(last_store_data),
@@ -248,9 +312,6 @@ module top (
       .stall_req(stall_req_id)
   );
 
-  wire wb_we;
-  wire [31:0] wb_write_data;
-  wire [4:0] wb_write_reg;
 
   REGS regs (
       .clk(clk),
@@ -269,15 +330,7 @@ module top (
       .wb_write_data(wb_write_data)
   );
 
-  wire [5:0] id_exe_aluop;
-  wire [31:0] id_exe_pc;
-  wire [31:0] id_exe_inst;
-  wire [31:0] id_exe_reg_1;
-  wire [31:0] id_exe_reg_2;
-  wire [4:0] id_exe_write_reg;
-  wire [31:0] id_exe_write_data;
-  wire id_exe_we;
-  wire [31:0] id_exe_link_addr;
+
 
   ID_EXE id_exe (
       .clk(clk),
@@ -302,9 +355,6 @@ module top (
       .stall(stall)
   );
 
-  wire [ 2:0] exe_memop;  // Exe to exe_mem
-  wire [31:0] exe_memdata;
-
   EXE exe (
       .rst(rst),
       .aluop(id_exe_aluop),
@@ -325,14 +375,6 @@ module top (
       .wb_write_data(exe_write_data),
       .wb_we(exe_we)
   );
-
-  wire exe_mem_we;
-  wire [31:0] exe_mem_pc;
-  wire [2:0] exe_mem_memop;
-  wire [31:0] exe_mem_memaddr;
-  wire [31:0] exe_mem_memdata;
-  wire [4:0] exe_mem_write_reg;
-  wire [31:0] exe_mem_write_data;
 
 
 
@@ -360,20 +402,9 @@ module top (
 
       .last_store_addr(last_store_addr),
       .last_store_data(last_store_data)
-      //   .stall(stall)
+
   );
 
-
-  wire [31:0] ram_addr;
-  wire [31:0] ram_write_data;
-  wire ram_chip_enable;
-  wire [31:0] ram_read_data;
-  wire ram_we;
-
-  wire [31:0] io_addr;
-  wire [31:0] io_write_data;
-  wire [31:0] io_read_data;
-  wire io_we;
 
   // MEM
   MEM mem (
@@ -389,9 +420,9 @@ module top (
       .mem_addr(exe_mem_memaddr),
       .mem_data(exe_mem_memdata),
 
-      .wb_we(ram_wb_we),
-      .wb_write_reg(ram_wb_write_reg),
-      .wb_write_data(ram_wb_write_data),
+      .wb_we(mem_wb_we),
+      .wb_write_reg(mem_wb_write_reg),
+      .wb_write_data(mem_wb_write_data),
 
       .ram_addr(ram_addr),
       .ram_write_data(ram_write_data),
@@ -420,9 +451,7 @@ module top (
       .ram_read_data(ram_read_data)
   );
 
-  wire [23:0] io_seg_data;
-  wire [23:0] io_led_data;
-  wire io_blink_data;
+
   MEM_IO mem_io (
       .clk(clk),
       .rst(rst),
@@ -443,19 +472,15 @@ module top (
   MEM_WB mem_wb (
       .clk(clk),
       .rst(rst),
-      // .stall(stall),
-      .mem_write_reg(ram_wb_write_reg),
-      .mem_we(ram_wb_we),
-      .mem_write_data(ram_wb_write_data),
+      .mem_write_reg(mem_wb_write_reg),
+      .mem_we(mem_wb_we),
+      .mem_write_data(mem_wb_write_data),
       .wb_write_reg(wb_write_reg),
       .wb_we(wb_we),
       .wb_write_data(wb_write_data)
   );
 
 
-  // wire [24:0] debug;
-  // assign led[23:16] = pc_reg_pc[10:2];
-  // assign led = io_addr[7:0];
 
   assign led[23]   = io_we;
   assign led[22]   = stall;
@@ -465,13 +490,13 @@ module top (
 
   displays disp (
       .clk(clock),
-      .data_display(io_addr),
-      //   .data_display(io_seg_data),
+    //   .data_display(io_addr),
+      .data_display(io_seg_data),
       .led_display(io_led_data),
       .blink_need(io_blink_data),
       .seg_out(seg_out),
       .seg_en(seg_en),
-      //   .led_out(led[15:0]),
+      .led_out(led[15:0]),
       .blink_out(blink_out)
   );
 

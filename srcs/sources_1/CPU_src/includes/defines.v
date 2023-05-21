@@ -25,7 +25,7 @@
 `define     ANDI_OP         6'b001100       // ANDI
 `define     LUI_OP          6'b001111       // LUI
 `define     ORI_OP          6'b001101       // ORI
-`define     XORI_OP         6'b001110       // XORI
+`define     XORI_OP         6'b001110       // XORI100
 
 `define     BEQ_OP          6'b000100       // BEQ
 `define     BNE_OP          6'b000101       // BNE
@@ -134,5 +134,5 @@
 `define     NoStop          1'b0            //不停止
 `define     NOPRegAddr      5'b00000        //空操作使用的寄存器地址
 
-`define     One_Sec         32'd3    //一秒
-// `define     One_Sec         32'd23_000_000    //一秒
+// `define     One_Sec         32'd3    //一秒
+`define     One_Sec         32'd23_000_000    //一秒

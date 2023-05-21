@@ -62,7 +62,7 @@ module REGS (
             if (re_1) begin
                 if (read_addr_1 == 5'b0) begin
                     read_data_1 =5'b0;
-                end else if (re_1 == wb_write_reg && wb_we) begin
+                end else if (read_addr_1 == wb_write_reg && wb_we) begin
                     read_data_1 = wb_write_data;
                 end else begin
                     read_data_1 = registers[read_addr_1];
@@ -80,7 +80,7 @@ module REGS (
             if (re_2) begin
                 if (read_addr_2 == 5'b0) begin
                     read_data_2 =5'b0;
-                end else if (re_2 == wb_write_reg && wb_we) begin
+                end else if (read_addr_2 == wb_write_reg && wb_we) begin
                     read_data_2 = wb_write_data;
                 end else begin
                     read_data_2 = registers[read_addr_2];

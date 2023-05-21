@@ -59,12 +59,12 @@ module MEM_IO (
 
   integer i;
 
-  always @(*) begin
+  always @(posedge clk) begin
     if (enterA) begin
-      A_reg = AB_input;
+      A_reg <= AB_input;
     end
     if (enterB) begin
-      B_reg = AB_input;
+      B_reg <= AB_input;
     end
   end
 
@@ -100,7 +100,7 @@ module MEM_IO (
     
 
     if (led_write) begin
-      // IO_led_out = io_data[15:0];
+      IO_led_out = io_data[15:0];
     end
 
     if (blk_write) begin

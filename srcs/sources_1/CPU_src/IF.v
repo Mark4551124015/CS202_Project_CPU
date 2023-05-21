@@ -37,13 +37,13 @@ module IF (input clk,
     
     /* if kickOff is 1 means CPU work on normal mode, otherwise CPU work on Uart communication mode */
     wire kickOff = upg_rst_i | (~upg_rst_i & upg_done_i);
-    
+    wire clock = ~clk;
     
     wire [31:0] Instruction_read;
     wire upg_wen = upg_wen_i & ~upg_adr_i[14];
     
     prgrom instmem (
-    .clka (kickOff ? clk : upg_clk_i),
+    .clka (kickOff ? clock : upg_clk_i),
     .wea  (kickOff ? 1'b0 : upg_wen),
     .addra(kickOff ? pc[15:2] : upg_adr_i[13:0]),
     .dina (kickOff ? `ZeroWord : upg_dat_i),

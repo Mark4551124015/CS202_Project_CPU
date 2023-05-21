@@ -32,7 +32,7 @@ module EXE_MEM (
     input [4:0] exe_write_reg,
     input [31:0] exe_write_data,
     
-    input [3:0] exe_mem_op,
+    input [2:0] exe_mem_op,
     input [31:0] exe_mem_addr,
     input [31:0] exe_mem_data,
     
@@ -84,8 +84,8 @@ module EXE_MEM (
           last_store_data <= exe_mem_data; 
         end
         default: begin
-          last_store_addr <= `ZeroWord;
-          last_store_data <= `ZeroWord; 
+          last_store_addr <= last_store_addr;
+          last_store_data <= last_store_data; 
         end
       endcase
     end

@@ -192,16 +192,6 @@ module ID (input clk,
                 re_2 = 1;
                 we = 0;
             end        
-            `BGTZ_OP: begin
-                re_1 = 1;
-                re_2 = 0;
-                we = 0;
-            end
-            `BLEZ_OP: begin 
-                re_1 = 1;
-                re_2 = 0;
-                we = 0;
-            end
             `J_OP: begin
                 re_1 = 0;
                 re_2 = 0;
@@ -441,11 +431,6 @@ module ID (input clk,
       if (rst) begin
          reg_1 = `ZeroWord;
       end else if (reg_1_load_hazard) begin             // Load
-        // if (exe_load_addr == last_store_addr) begin
-        //   reg_1 = last_store_data;          
-        // end else begin
-        //   stall_req_reg1 = 1;
-        // end
             stall_req_reg1 = 1;
       end else if (re_1 && exe_we && exe_write_reg == read_addr_1) begin // EXE-EXE Forwarding
         reg_1 = exe_write_data;
@@ -468,11 +453,6 @@ module ID (input clk,
       if (rst) begin
         reg_2 = `ZeroWord;
       end else if (reg_2_load_hazard) begin             // Load
-        // if (exe_load_addr == last_store_addr) begin
-        //   reg_2 = last_store_data;          
-        // end else begin
-        //   stall_req_reg2 = 1;
-        // end
         stall_req_reg2 = 1;
       end else if (re_2 && exe_we && exe_write_reg == read_addr_2) begin // EXE-EXE Forwarding
         reg_2 = exe_write_data;
