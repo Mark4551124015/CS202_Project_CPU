@@ -25,8 +25,9 @@ module MEM_RAM (
   wire [31:0] readData_tmp;
   assign ram_read_data = (kickOff && chip_enable) ? readData_tmp : `ZeroWord;
 
+  wire clock = ~clk;
   RAM MEM (
-      .clka (kickOff ? clk : upg_clk_i),
+      .clka (kickOff ? clock : upg_clk_i),
       .wea  (kickOff ? mem_we : upg_wen),
       .addra(kickOff ? mem_addr[15:2] : upg_adr_i[13:0]),
       .dina (kickOff ? mem_write_data : upg_dat_i),
