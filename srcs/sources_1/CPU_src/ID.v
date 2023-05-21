@@ -132,22 +132,22 @@ module ID (input clk,
                 write_reg    = rt;
                 imm_ext = imm_s;
             end
-            `MUL_OP:begin
-                if (shamt == 5'b0) begin
-                    case (funct)
-                        `MUL_FUNC: begin
-                            aluop = `EXE_MUL_OP;
-                            re_1  = 1;
-                            re_2  = 1;
-                            we    = 1;
-                            // Write back to LOW/HIGH
-                        end
-                        default: begin
-                        end
-                    endcase
-                end else begin
-                end
-            end
+            // `MUL_OP:begin
+            //     if (shamt == 5'b0) begin
+            //         case (funct)
+            //             `MUL_FUNC: begin
+            //                 aluop = `EXE_MUL_OP;
+            //                 re_1  = 1;
+            //                 re_2  = 1;
+            //                 we    = 1;
+            //                 // Write back to LOW/HIGH
+            //             end
+            //             default: begin
+            //             end
+            //         endcase
+            //     end else begin
+            //     end
+            // end
             `ANDI_OP: begin
                 aluop = `EXE_AND_OP;
                 re_1 = 1;
