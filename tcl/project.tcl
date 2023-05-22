@@ -142,9 +142,7 @@ set files [list \
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/modules/TW.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/CPU_src/includes/defines.v"]"\
  "[file normalize "$origin_dir/srcs/sources_1/ip/RAM/RAM.xci"]"\
- "[file normalize "$origin_dir/coe/RAM.coe"]"\
  "[file normalize "$origin_dir/srcs/sources_1/ip/prgrom/prgrom.xci"]"\
- "[file normalize "$origin_dir/coe/prgrom.coe"]"\
  "[file normalize "$origin_dir/srcs/sources_1/ip/cpuclk/cpuclk.xci"]"\
  "[file normalize "$origin_dir/srcs/sources_1/ip/uart/uart.xci"]"\
 ]
