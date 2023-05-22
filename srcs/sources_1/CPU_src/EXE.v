@@ -23,21 +23,25 @@
 
 module EXE (
     input rst,
-    input [5:0] aluop,
+    input [5:0] aluop,    // ALU op
 
-    input [31:0] reg_1,
-    input [31:0] reg_2,
-    input [4:0] write_reg,
-    input we,
-    input [31:0] inst,
-    input [31:0] pc,
+    input [31:0] reg_1,   // Reg 1 Data
+    input [31:0] reg_2,   // Reg 2 Data
+    input [4:0] write_reg,  // Need write reg
+    input we,               // Write Reg Enable
+    input [31:0] inst,      // Instruction
+    input [31:0] pc,        // PC
 
+    // Jal store addr
     input [31:0] link_addr,
 
+    // this is load, use for hazard detection
+    output this_load,
+
+    // To MEM
     output reg [2:0] mem_op,
     output reg [31:0] mem_addr,
     output reg [31:0] mem_data,
-    output this_load,
     output reg [4:0] wb_write_reg,
     output reg [31:0] wb_write_data,
     output reg wb_we
@@ -45,6 +49,8 @@ module EXE (
 
   assign this_load = (aluop == `EXE_LW_OP);
 
+
+  // Compute Result
   always @(*) begin
     if (rst) begin
       wb_write_data = `ZeroWord;
@@ -54,7 +60,7 @@ module EXE (
       wb_write_data = `ZeroWord;
       wb_write_reg = write_reg;
       wb_we = we;
-      case (aluop)
+      case (aluop)    // Same as single cycle
         `EXE_AND_OP:  wb_write_data = reg_1 & reg_2;
         `EXE_OR_OP:   wb_write_data = reg_1 | reg_2;
         `EXE_XOR_OP:  wb_write_data = reg_1 ^ reg_2;
@@ -68,11 +74,12 @@ module EXE (
         `EXE_SUB_OP:  wb_write_data = reg_1 + (~reg_2) + 1;
         // `EXE_MUL_OP:  wb_write_data = reg_1 * reg_2;
         `EXE_JAL_OP:  wb_write_data = link_addr;
-
       endcase
     end
   end
   wire [31:0] imm_ext = {{16{inst[15]}}, inst[15:0]};
+
+  // lw, sw address
   always @(*) begin
     if (rst) begin
       mem_op   = `MEM_NOP_OP;

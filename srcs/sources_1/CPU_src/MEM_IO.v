@@ -34,8 +34,8 @@ module MEM_IO (
   input [7:0] AB_input,
   input [2:0] TEST_input,
 
-  output reg [23:0] IO_seg_out,
-  output reg [15:0] IO_led_out,
+  output reg [23:0] IO_seg_out, // Seg display data
+  output reg [15:0] IO_led_out, // Led display data
   output reg IO_blink_out
 );
 
@@ -69,12 +69,14 @@ module MEM_IO (
   end
 
   always @(negedge clk) begin
+    // Queue display of seg data
     writter <= front;
     if (rst) begin
       VRAM[writter] <= 0;
       front<=0;
       back<=0;
     end else begin
+      // enqueue
       if (seg_write) begin
         VRAM[writter] <= io_data[23:0];
         if (front != 5'd31) begin
@@ -83,7 +85,7 @@ module MEM_IO (
           front <= 0;
         end
       end
-
+      // display and dequeue
       if (front != back) begin
         IO_seg_out <= VRAM[back];
         if (VRAM_time > 0) begin
@@ -98,14 +100,22 @@ module MEM_IO (
       end
     end
     
-
-    if (led_write) begin
-      IO_led_out = io_data[15:0];
+    // Updating Led
+    if (rst) begin
+      IO_led_out =  16'b0;
+    end else if (led_write) begin
+      IO_led_out <= io_data[15:0];
     end
 
+    // updating Blink 
+    if (rst) begin
+      Blink_time <= 0;
+    end
     if (blk_write) begin
       Blink_time <= io_data;
     end
+    
+    // counting down blink time
     if (Blink_time > 0) begin
       IO_blink_out <= 1;
       Blink_time <= Blink_time - 1;
@@ -114,10 +124,12 @@ module MEM_IO (
     end
   end
 
+  // stimulate IO writing
   assign seg_write = (io_we && io_addr == `IO_SEG_ADDR);
   assign led_write = (io_we && io_addr == `IO_LED_ADDR);
   assign blk_write = (io_we && io_addr == `IO_BLINK_ADDR);
-
+  
+  // Read From IO
   always @(*) begin
     if (!io_we) begin
       case (io_addr)

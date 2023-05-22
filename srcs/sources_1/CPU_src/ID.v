@@ -66,25 +66,23 @@ module ID (input clk,
     // I-Type
     wire [15:0] imm = inst[15:0];
     // J-type
-    wire [25:0] inst_index = inst[25:0];
+    wire [25:0] inst_index = inst[25:0];    // Jump Address
     // Extend Imme
-    wire [31:0] imm_u = {{16{1'b0}}, imm};
-    wire [31:0] imm_s = {{16{imm[15]}}, imm};
+    wire [31:0] imm_u = {{16{1'b0}}, imm};      // Non Sign extend
+    wire [31:0] imm_s = {{16{imm[15]}}, imm};   // Sign extended
     wire [31:0] next_pc;
-    wire [31:0] jump_addr   = {next_pc[31:28], inst_index, 2'b00};
-    wire [31:0] branch_address = next_pc + {imm_s[29:0], 2'b00};
+    wire [31:0] jump_addr   = {next_pc[31:28], inst_index, 2'b00};  // Direct Jump
+    wire [31:0] branch_address = next_pc + {imm_s[29:0], 2'b00};    // Relative Jump
     
-    reg stall_req_reg1;
-    reg stall_req_reg2;
+    reg stall_req_reg1; // Stall request for reg 1
+    reg stall_req_reg2; // Stall request for reg 2
 
-    
     reg [31:0] imm_ext;
-    
-    assign next_pc = pc + 4;
+    assign next_pc = pc + 4;        // Next line
+    assign stall_req = stall_req_reg1 | stall_req_reg2; // Stall request
+    assign id_inst = inst;  // Pass Instruction
 
-    assign stall_req = stall_req_reg1 | stall_req_reg2;
-    assign id_inst = inst;
-    // Decoding
+    // Decoding Instruction
     always @(*) begin
         if (rst) begin
             aluop        = `EXE_NOP_OP;
@@ -180,8 +178,6 @@ module ID (input clk,
                write_reg = rt;
                imm_ext = imm_u;
             end
-
-            
             `BEQ_OP: begin
                 re_1 = 1;
                 re_2 = 1;
@@ -348,7 +344,7 @@ module ID (input clk,
 
 
 
-        //确定是否跳转及跳转地址
+        // Whether Branch or not
     always @(*) begin
         if(rst) begin
             branch_flag = 0;
@@ -415,19 +411,19 @@ module ID (input clk,
       stall_req_reg1 = 0;
       if (rst) begin
          reg_1 = `ZeroWord;
-      end else if (reg_1_load_hazard) begin             // Load
+      end else if (reg_1_load_hazard) begin          // Load Hazard
             stall_req_reg1 = 1;
-      end else if (re_1 && exe_we && exe_write_reg == read_addr_1) begin // EXE-EXE Forwarding
-        reg_1 = exe_write_data;
-      end else if (re_1 && mem_we && mem_write_reg == read_addr_1) begin // MEM-EXE Forwarding
-        reg_1 = mem_write_data;
+      end else if (re_1 && exe_we && exe_write_reg == read_addr_1) begin 
+        reg_1 = exe_write_data;                     // EXE-EXE Forwarding
+      end else if (re_1 && mem_we && mem_write_reg == read_addr_1) begin 
+        reg_1 = mem_write_data;                     // MEM-EXE Forwarding
       end
       else if (re_1) begin
-        reg_1 = read_data_1;
+        reg_1 = read_data_1;        // Direct Read
       end else if (~re_1) begin
-        reg_1 = imm_ext;
+        reg_1 = imm_ext;            // default Read
       end else begin
-        reg_1 = `ZeroWord;
+        reg_1 = `ZeroWord;          // default
       end
     end
 
@@ -437,19 +433,19 @@ module ID (input clk,
       stall_req_reg2 = 0;
       if (rst) begin
         reg_2 = `ZeroWord;
-      end else if (reg_2_load_hazard) begin             // Load
-        stall_req_reg2 = 1;
-      end else if (re_2 && exe_we && exe_write_reg == read_addr_2) begin // EXE-EXE Forwarding
-        reg_2 = exe_write_data;
-      end else if (re_2 && mem_we && mem_write_reg == read_addr_2) begin // MEM-EXE Forwarding
-        reg_2 = mem_write_data;
+      end else if (reg_2_load_hazard) begin             
+        stall_req_reg2 = 1;                             // Load Hazard
+      end else if (re_2 && exe_we && exe_write_reg == read_addr_2) begin 
+        reg_2 = exe_write_data;                         // EXE-EXE Forwarding
+      end else if (re_2 && mem_we && mem_write_reg == read_addr_2) begin 
+        reg_2 = mem_write_data;                         // MEM-EXE Forwarding
       end
       else if (re_2) begin
-        reg_2 = read_data_2;
+        reg_2 = read_data_2;    // Direct Read
       end else if (~re_2) begin
-        reg_2 = imm_ext;
+        reg_2 = imm_ext;        // default Read
       end else begin
-        reg_2 = `ZeroWord;
+        reg_2 = `ZeroWord;      // default
       end
     end
     

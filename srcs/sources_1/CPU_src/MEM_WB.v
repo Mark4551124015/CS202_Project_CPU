@@ -26,16 +26,20 @@ module MEM_WB (
     input             clk,
     input             rst,
     // input             stall,
-    //来自mem阶段的信息	
+    
+    // Data from MEM
     input wire [ 4:0] mem_write_reg,
     input wire        mem_we,
     input wire [31:0] mem_write_data,
 
+    //Data for WriteBack
     output reg [ 4:0] wb_write_reg,
     output reg        wb_we,
     output reg [31:0] wb_write_data
 );
+  
 
+  // Pipeline 
   always @(posedge clk) begin
     if (rst) begin
       wb_write_reg <= `NOPRegAddr;

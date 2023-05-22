@@ -30,14 +30,13 @@ module PC_reg (
     output reg [31:0] pc,
     input inited);
     
-
     always @(posedge clk) begin
         if (!inited) pc <= `ZeroWord;
         else if (!stall) begin
             if (branch_flag) begin
-                pc <= branch_addr;
+                pc <= branch_addr; // branch
             end else if (pc < 32'd65536) begin
-                pc <= pc + 4;
+                pc <= pc + 4; //PC+4 if stall
             end
         end
     end

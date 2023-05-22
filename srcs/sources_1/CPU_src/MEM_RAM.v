@@ -19,8 +19,6 @@ module MEM_RAM (
   /* CPU work on normal mode when kickOff is 1. CPU work on Uart communicate mode when kickOff is 0.*/
   wire kickOff = upg_rst_i | (~upg_rst_i & upg_done_i);
 
-  reg [31:0] IO_in;     // 8bit switch
-  reg [31:0] IO_out;    // 32bit leds
   wire upg_wen = upg_wen_i & upg_adr_i[14];
   wire [31:0] readData_tmp;
   assign ram_read_data = (kickOff && chip_enable) ? readData_tmp : `ZeroWord;

@@ -24,6 +24,7 @@
 module MEM (
     input clk,
     input rst,
+    // Data from EXE
     input [31:0] mem_pc,
     input we,
     input [4:0] write_reg,
@@ -31,18 +32,20 @@ module MEM (
     input [2:0] mem_op,
     input [31:0] mem_addr,
     input [31:0] mem_data,
+
     // To wb
     output reg wb_we,
     output reg [4:0] wb_write_reg,
     output reg [31:0] wb_write_data,
 
+    // Communicate with RAM
     output reg [31:0] ram_addr,
     output reg [31:0] ram_write_data,
     output reg ram_chip_enable,
     output reg ram_we,
     input [31:0] ram_read_data
 ,
-
+    // Communicate with IO
     output reg [31:0] io_addr,
     output reg [31:0] io_write_data,
     output reg io_we,
@@ -51,6 +54,8 @@ module MEM (
 
 wire IS_IO = (mem_addr >= `IO_START_MEM);
 
+
+// Decode MEM instruction
 always @(*) begin
   if (rst) begin
     wb_we = 0;
@@ -131,7 +136,6 @@ always @(*) begin
     end
   endcase
 end
-
 
 
 endmodule

@@ -33,7 +33,7 @@ module IF_ID (input clk,
               output reg [31:0] id_inst,
               input stall);
     
-    // Update and stall
+    // Pipeline
     always @(posedge clk) begin
         if (rst) begin
             id_pc <= `ZeroWord;

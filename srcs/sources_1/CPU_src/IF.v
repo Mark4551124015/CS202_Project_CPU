@@ -53,5 +53,5 @@ module IF (input clk,
         if (kickOff && inited)  Instruction = Instruction_read;
         else Instruction          = `ZeroWord;
     end
-    
+
 endmodule

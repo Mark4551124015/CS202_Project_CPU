@@ -5,13 +5,17 @@ module CTRL (
     input  clk,
     input  rst,
     input  enter,
+    
+    // Stall
     output stall,
+
+    // Stall requesting
     input  stall_req_if,
     input  stall_req_id,
     input  stall_req_io,
     output reg inited
 );
-
+    // Init the chip
     always @(posedge clk) begin
         if (rst) begin
             inited <= 0;

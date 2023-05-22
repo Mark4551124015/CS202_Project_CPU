@@ -45,8 +45,9 @@ module ID_EXE (
     output reg exe_we,
 
     // Brach Addr
-    input [31:0] id_link_addr,
-    output reg [31:0] exe_link_addr,
+    input [31:0] id_link_addr,        // Jal
+    output reg [31:0] exe_link_addr,  
+
     // Stall
     input stall
 );

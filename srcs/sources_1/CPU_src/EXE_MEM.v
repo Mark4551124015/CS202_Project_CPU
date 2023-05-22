@@ -56,6 +56,7 @@ module EXE_MEM (
 
 );
 
+  // Pipeline 
   always @(posedge clk) begin
     if (rst) begin
       mem_pc <= `ZeroWord;
@@ -78,6 +79,8 @@ module EXE_MEM (
       mem_we <= exe_we;
       mem_write_reg <= exe_write_reg;
       mem_write_data <= exe_write_data;
+      
+      // Load use hazard Forwarding, Not using now
       case (exe_mem_op) 
         `MEM_SW_OP: begin
           last_store_addr <= exe_mem_addr;
