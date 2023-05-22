@@ -126,10 +126,4 @@ module Ifetc32 (
     end
   end
 
-
-
-  // always @(negedge clock) begin
-  //   if (reset) link_addr = `ZeroWord;
-  //   else if (Jal || Jmp) link_addr = branch_base_addr;
-  // end
 endmodule
