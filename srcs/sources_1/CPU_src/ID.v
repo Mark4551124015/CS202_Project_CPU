@@ -58,11 +58,11 @@ module ID (input clk,
            output stall_req);
     
     wire[5:0] opcode            = inst[31:26];
-    wire[4:0] rs            = inst[25:21];
-    wire[4:0] rt            = inst[20:16];
-    wire[4:0] rd            = inst[15:11];
-    wire[4:0] shamt         = inst[10:6];
-    wire[5:0] funct          = inst[5:0];
+    wire[4:0] rs                = inst[25:21];
+    wire[4:0] rt                = inst[20:16];
+    wire[4:0] rd                = inst[15:11];
+    wire[4:0] shamt             = inst[10:6];
+    wire[5:0] funct             = inst[5:0];
     // I-Type
     wire [15:0] imm = inst[15:0];
     // J-type
@@ -203,16 +203,7 @@ module ID (input clk,
                 re_2 = 0;
                 we = 1;
                 write_reg = 5'b11111;
-            end
-
-            `LB_OP: begin
-                aluop = `EXE_LB_OP;
-                re_1 = 1;
-                re_2 = 0;
-                we = 1;
-                write_reg = rt;
-                imm_ext = imm_s;
-            end         
+            end      
             `LW_OP: begin
                 aluop = `EXE_LW_OP;
                 re_1 = 1;
@@ -220,13 +211,7 @@ module ID (input clk,
                 we = 1;
                 write_reg = rt;
                 imm_ext = imm_s;
-            end         
-            `SB_OP: begin
-                aluop = `EXE_SB_OP;
-                re_1 = 1;
-                re_2 = 1;
-                we = 0;
-            end           
+            end                 
             `SW_OP: begin
                 aluop = `EXE_SW_OP;
                 re_1 = 1;
