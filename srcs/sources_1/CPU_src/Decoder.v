@@ -83,11 +83,6 @@ module decode32 (
   assign Read_data_2 = register[rt];
   integer i;
 
-  initial begin
-    for (i = 0; i < 32; i = i + 1) register[i] = 0;
-    register[29] = `SP_START_ADDR;  // Init sp register 
-  end
-
 
   always @(posedge clock) begin
     
@@ -97,7 +92,7 @@ module decode32 (
     if (Jal) write_data <= opcplus4;
     else if (!MemorIOtoReg) write_data <= ALU_result;
     else if (MemorIOtoReg) begin
-      write_data = mem_data;
+      write_data <= mem_data;
     end
 
     if (reset) begin
